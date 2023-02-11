@@ -1,12 +1,14 @@
 # Kitchen Calendar
 
-Generate Norwegian per-week calendars that can be printed out and hung up in the kitchen.
+Generate per-week calendars that can be printed out and hung up in the kitchen.
 
 For instance, print out calendars for the next 10 week and attach them to the cupboard doors with Blu Tack or another adhesive.
 
+Currently, the calendars are only in Norwegian, but pull requests are welcome.
+
 ### Example PDF
 
-![img/kitchencalendar_februar_2023.png](kitchen calendar)
+![kitchen calendar](img/kitchencalendar_februar_2023.png)
 
 ### Example use for Go >= 1.17
 
