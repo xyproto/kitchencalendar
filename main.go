@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/signintech/gopdf"
 	"github.com/xyproto/env"
+	"github.com/xyproto/kal"
 )
 
 const (
@@ -189,7 +190,7 @@ func dayAndDate(t time.Time) string {
 }
 
 // draw a week into the PDF
-func drawWeek(pdf *gopdf.GoPdf, year, week int, x, y *float64, xRight, width float64, names []string) error {
+func drawWeek(pdf *gopdf.GoPdf, calendar *kal.Calendar, year, week int, x, y *float64, xRight, width float64, names []string) error {
 	tableHeight := 300.0
 
 	// Draw the left vertical lines of the table
@@ -221,14 +222,14 @@ func drawWeek(pdf *gopdf.GoPdf, year, week int, x, y *float64, xRight, width flo
 	// Draw the week names and vertical lines for the 1st week
 	originalX := *x
 	*x += 70
-	dayCounter := 0
 	err := iterateDays(mondayTime, sundayTime, func(t time.Time) error {
-		dayCounter++
 		text := dayAndDate(t)
+
 		fontName := "regular"
-		if dayCounter > 5 { // bold font for Saturday and Sunday
+		if isRedDay := kal.RedDay(*calendar, t); t.Weekday() == time.Sunday || isRedDay { // Red day
 			fontName = "bold"
 		}
+
 		fontSize := 11
 		if err := write(pdf, *x, *y, text, fontName, fontSize); err != nil {
 			return err
@@ -281,18 +282,22 @@ func getCurrentWeek() int {
 
 func main() {
 	outputFilename := flag.String("o", "calendar.pdf", "an output PDF filename")
-	nameString := flag.String("names", "Vilde,Synne,Aria,Alexander", "the family names")
-	verbose := flag.Bool("V", true, "verbose output")
 	yearFlag := flag.Int("year", getCurrentYear(), "the year")
 	weekFlag := flag.Int("week", getCurrentWeek(), "the week number")
+	nameString := flag.String("names", "Vilde,Synne,Aria,Alexander", "names used in the calendar")
+	verbose := flag.Bool("V", true, "verbose output")
+
 	flag.Parse()
 
 	year := *yearFlag
 	week := *weekFlag
-
 	names := strings.Split(*nameString, ",")
 
-	title := generateTitle(year, week)
+	calendar, err := kal.NewCalendar("nb_NO", true)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
 
 	// Got all needed information, generate and output the PDF
 
@@ -311,12 +316,12 @@ func main() {
 	pdf.AddPage()
 
 	if err := pdf.AddTTFFont("regular", "ttf/nunito/Nunito-Regular.ttf"); err != nil {
-		log.Print(err.Error())
+		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
 	if err := pdf.AddTTFFont("bold", "ttf/nunito/Nunito-Bold.ttf"); err != nil {
-		log.Print(err.Error())
+		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
@@ -324,19 +329,20 @@ func main() {
 
 	y := 60.0
 	x := 35.0
-	xRight := 470.0
+	xRight := 460.0
 	width := 538.0
 
 	// Draw the month and year title
+	title := generateTitle(year, week)
 	if err := write(&pdf, x, y, title, "bold", 24); err != nil {
-		log.Print(err.Error())
+		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
 	// Draw the first week
 	y += 50
-	if err := drawWeek(&pdf, year, week, &x, &y, xRight, width, names); err != nil {
-		log.Print(err.Error())
+	if err := drawWeek(&pdf, &calendar, year, week, &x, &y, xRight, width, names); err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
@@ -344,8 +350,8 @@ func main() {
 
 	// Draw the second week
 	y += 20
-	if err := drawWeek(&pdf, year, week, &x, &y, xRight, width, names); err != nil {
-		log.Print(err.Error())
+	if err := drawWeek(&pdf, &calendar, year, week, &x, &y, xRight, width, names); err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
