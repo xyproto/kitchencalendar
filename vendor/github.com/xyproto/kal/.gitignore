@@ -1,0 +1,10 @@
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+cmd/Norway/Norway
+cmd/Turkey/Turkey
+cmd/USA/USA
+cmd/kal/kal

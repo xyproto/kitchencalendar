@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/signintech/gopdf v0.16.1
 	github.com/xyproto/env v1.9.1
+	github.com/xyproto/kal v1.3.0
 )
 
 require (
