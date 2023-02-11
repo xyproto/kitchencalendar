@@ -2,7 +2,9 @@
 
 Generate per-week calendars that can be printed out and hung up in the kitchen.
 
-For instance, print out calendars for the next 10 week and attach them to the cupboard doors with Blu Tack or another adhesive.
+For instance, print out calendars for the next 10 weeks and attach them to the cupboard doors with Blu Tack or another adhesive.
+
+It gives a very nice and hands-on overview of the coming weeks, and it's easy to sync and align what's happening with other people.
 
 Currently, the calendars are only in Norwegian, but pull requests are welcome.
 
