@@ -1,0 +1,6 @@
+kitchencalendar
+*.bak
+*.o
+*.swp
+*.tmp
+*.pdf
