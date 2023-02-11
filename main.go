@@ -3,17 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
+	"log"
 	"strings"
-	"time"
 
-	"github.com/jung-kurt/gofpdf"
+	"github.com/signintech/gopdf"
 	"github.com/xyproto/env"
 )
 
 const versionString = "KitchenCalendar 0.0.1"
-
-const verbose = true
 
 var paperSize = env.Str("PAPERSIZE", "A4")
 
@@ -22,50 +19,41 @@ func init() {
 }
 
 func main() {
-	outputFilenameFlag := flag.String("o", "calendar.pdf", "an output PDF filename")
-	verboseFlag := flag.Bool("V", true, "verbose output")
+	outputFilename := flag.String("o", "calendar.pdf", "an output PDF filename")
+	verbose := flag.Bool("V", true, "verbose output")
 	flag.Parse()
 
-	filename := *outputFilenameFlag
-	verbose := *verboseFlag
+	//timestamp := time.Now().Format("2006-01-02")
 
-	timestamp := time.Now().Format("2006-01-02")
+	pdf := gopdf.GoPdf{}
 
-	pdf := gofpdf.New("P", "mm", paperSize, "")
-	pdf.SetTopMargin(30)
-	topLeftText := "1/1"
-	topRightText := timestamp + ", " + "BLABLABLA"
-	pdf.SetHeaderFunc(func() {
-		pdf.SetY(5)
-		pdf.SetFont("Helvetica", "", 6)
-		pdf.CellFormat(80, 0, topLeftText, "", 0, "L", false, 0, "")
-		pdf.CellFormat(0, 0, topRightText, "", 0, "R", false, 0, "")
-	})
+	// Initialize and use a config struct
+	var c gopdf.Config
+	switch strings.TrimSpace(paperSize) {
+	case "letter":
+		c.PageSize = *gopdf.PageSizeLetter
+	default:
+		c.PageSize = *gopdf.PageSizeA4
+	}
+	pdf.Start(c)
+
 	pdf.AddPage()
-	pdf.SetY(20)
-	lines := strings.Split("this\nis\ntext", "\n")
-	pdf.SetFont("Courier", "B", 12)
-	pdf.Write(5, lines[0]+"\n")
-	pdf.SetFont("Courier", "", 12)
-	pdf.Write(5, strings.Join(lines[1:len(lines)-1], "\n"))
-	pdf.SetFont("Courier", "B", 12)
-	pdf.Write(5, "\n"+lines[len(lines)-1])
-
-	if _, err := os.Stat(filename); !os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "%s already exists\n", filename)
-		os.Exit(1)
+	err := pdf.AddTTFFont("wts11", "ttf/nunito/Nunito-Regular.ttf")
+	if err != nil {
+		log.Print(err.Error())
+		return
 	}
 
-	if verbose {
-		fmt.Printf("Writing %s... ", filename)
+	err = pdf.SetFont("wts11", "", 14)
+	if err != nil {
+		log.Print(err.Error())
+		return
 	}
-	if err := pdf.OutputFileAndClose(filename); err != nil {
-		if verbose {
-			fmt.Fprintf(os.Stderr, "%s\n", err)
-		}
-		os.Exit(1)
-	}
-	if verbose {
+	pdf.Cell(nil, "asdf")
+	pdf.WritePdf(*outputFilename)
+
+	if *verbose {
 		fmt.Println("done")
 	}
+
 }
