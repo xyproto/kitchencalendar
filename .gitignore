@@ -3,4 +3,4 @@ kitchencalendar
 *.o
 *.swp
 *.tmp
-*.pdf
+#*.pdf
