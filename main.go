@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
 	"time"
@@ -12,15 +13,9 @@ import (
 	"github.com/xyproto/kal"
 )
 
-const (
-	versionString = "KitchenCalendar 0.0.1"
-)
+const versionString = "KitchenCalendar 0.0.1"
 
 var paperSize = env.Str("PAPERSIZE", "A4")
-
-func init() {
-	fmt.Println(versionString)
-}
 
 // firstMondayOfWeek finds the first monday of the week, given a year and a week number
 func firstMondayOfWeek(year, week int) time.Time {
@@ -280,11 +275,36 @@ func getCurrentWeek() int {
 	return week
 }
 
+func drawImage(pdf *gopdf.GoPdf, year, week int, x, y, w, h float64) {
+	r := rand.New(rand.NewSource(int64(year)*256 + int64(week)))
+	maxLineWidth := 2.0
+	pdf.SetLineWidth(r.Float64() * maxLineWidth)
+	px1 := float64(r.Intn(int(w)))
+	py1 := float64(r.Intn(int(h)))
+	for i := 0; i < 20; i++ {
+		px2 := float64(r.Intn(int(w)))
+		py2 := float64(r.Intn(int(h)))
+		pdf.Line(x+px1, y+py1, x+px2, y+py2)
+		px1 = px2
+		py1 = py2
+	}
+	maxLineWidth = 3.0
+	for i := 0; i < 5; i++ {
+		px1 := float64(r.Intn(int(w)))
+		py1 := float64(r.Intn(int(h)))
+		px2 := float64(r.Intn(int(w)))
+		py2 := float64(r.Intn(int(h)))
+		pdf.SetLineWidth(r.Float64() * maxLineWidth)
+		pdf.Oval(x+px1, y+py1, x+px2, y+py2)
+	}
+}
+
 func main() {
 	outputFilename := flag.String("o", "calendar.pdf", "an output PDF filename")
 	yearFlag := flag.Int("year", getCurrentYear(), "the year")
 	weekFlag := flag.Int("week", getCurrentWeek(), "the week number")
 	nameString := flag.String("names", "Vilde,Synne,Aria,Alexander", "names used in the calendar")
+	drawingFlag := flag.Bool("drawing", true, "include a drawing for each year and week in the top right corner")
 	verbose := flag.Bool("V", true, "verbose output")
 
 	flag.Parse()
@@ -325,8 +345,6 @@ func main() {
 		return
 	}
 
-	pdf.SetLineWidth(0.5)
-
 	y := 60.0
 	x := 35.0
 	xRight := 460.0
@@ -338,6 +356,14 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
+
+	// Draw a little logo for this year and week in the top right, by using random lines
+	if *drawingFlag {
+		drawImage(&pdf, year, week, xRight-50, y-40, 170, 70)
+	}
+
+	// Set the line width for the weeks and tables that will now be drawn
+	pdf.SetLineWidth(0.5)
 
 	// Draw the first week
 	y += 50
@@ -353,6 +379,10 @@ func main() {
 	if err := drawWeek(&pdf, &calendar, year, week, &x, &y, xRight, width, names); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
+	}
+
+	if *verbose {
+		fmt.Printf("Writing to %s... ", *outputFilename)
 	}
 
 	pdf.WritePdf(*outputFilename)
