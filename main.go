@@ -121,10 +121,10 @@ func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64,
 	tableHeight := 300.0
 
 	// Draw the left vertical lines of the table
-	pdf.Line(*x, *y+20, *x, *y+tableHeight+36)
+	pdf.Line(*x, *y+20, *x, *y+tableHeight+37.2)
 
 	// Draw the right vertical lines of the table
-	pdf.Line(*x+width, *y+20, *x+width, *y+tableHeight+36)
+	pdf.Line(*x+width, *y+20, *x+width, *y+tableHeight+37.2)
 
 	// Generate the titles for this week
 	headerLeft := generateWeekHeaderLeft(year, week)
@@ -141,7 +141,7 @@ func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64,
 
 	// Draw a horizontal line
 	*y += 20
-	pdf.Line(*x, *y, *x+width, *y)
+	pdf.Line(*x-0.2, *y, *x+width+0.2, *y)
 
 	// Find monday and sunday
 	mondayTime := firstMondayOfWeek(year, week)
@@ -150,6 +150,8 @@ func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64,
 	// Draw the week names and vertical lines for the 1st week
 	originalX := *x
 	*x += 70
+	cellWidth := width / 8.0
+	i := 1
 	err := iterateDays(mondayTime, sundayTime, func(t time.Time) error {
 		text := dayAndDate(cal, t)
 
@@ -159,11 +161,12 @@ func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64,
 		}
 
 		fontSize := 11
-		if err := write(pdf, *x, *y, text, fontName, fontSize); err != nil {
+		if err := write(pdf, originalX+float64(i)*cellWidth+2, *y, text, fontName, fontSize); err != nil {
 			return err
 		}
-		pdf.Line(*x-2, *y, *x-2, *y+tableHeight+17)
-		*x += float64(len(text)) * 6.5
+		// Draw the vertical line
+		pdf.Line(originalX+float64(i)*cellWidth, *y, originalX+float64(i)*cellWidth, *y+tableHeight+17.3)
+		i++
 		return nil
 	})
 	if err != nil {
