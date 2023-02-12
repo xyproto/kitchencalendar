@@ -1,6 +1,9 @@
 package main
 
 import (
+	_ "embed"
+	"path/filepath"
+
 	"flag"
 	"fmt"
 	"os"
@@ -14,6 +17,12 @@ import (
 )
 
 const versionString = "KitchenCalendar 0.2.0"
+
+//go:embed ttf/nunito/Nunito-Regular.ttf
+var nunitoRegularData []byte
+
+//go:embed ttf/nunito/Nunito-Bold.ttf
+var nunitoBoldData []byte
 
 var paperSize = env.Str("PAPERSIZE", "A4")
 
@@ -230,6 +239,12 @@ func getMonthAbbrev(cal kal.Calendar, month time.Month) string {
 	return strings.ToLower(cal.MonthName(month)[:3])
 }
 
+// exists checks if the given path exists
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
 func main() {
 	outputFilename := flag.String("o", "calendar.pdf", "an output PDF filename")
 	yearFlag := flag.Int("year", getCurrentYear(), "the year")
@@ -266,12 +281,34 @@ func main() {
 
 	pdf.AddPage()
 
-	if err := pdf.AddTTFFont("regular", "ttf/nunito/Nunito-Regular.ttf"); err != nil {
+	tempdir := env.Str("TMPDIR", "/tmp")
+	nunitoRegularFilename := filepath.Join(tempdir, "Nunito-Regular.ttf")
+	if !exists(nunitoRegularFilename) {
+		os.WriteFile(nunitoRegularFilename, nunitoRegularData, 0o664)
+	}
+	if !exists(nunitoRegularFilename) {
+		err := fmt.Errorf("could not write to %s", nunitoRegularFilename)
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
-	if err := pdf.AddTTFFont("bold", "ttf/nunito/Nunito-Bold.ttf"); err != nil {
+	nunitoBoldFilename := filepath.Join(tempdir, "Nunito-Bold.ttf")
+	if !exists(nunitoBoldFilename) {
+		os.WriteFile(nunitoBoldFilename, nunitoBoldData, 0o664)
+	}
+
+	if !exists(nunitoBoldFilename) {
+		err := fmt.Errorf("could not write to %s", nunitoBoldFilename)
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
+
+	if err := pdf.AddTTFFont("regular", nunitoRegularFilename); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
+
+	if err := pdf.AddTTFFont("bold", nunitoBoldFilename); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
