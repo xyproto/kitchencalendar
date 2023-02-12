@@ -20,6 +20,8 @@ Version 0.2.0:
 
 ![kitchen calendar](img/kitchencalendar_februar_2023_us.png)
 
+The image is just a placeholder and can be swapped out.
+
 ### Getting started
 
 Go 1.17 or later is needed for `go install` to work as expected.
