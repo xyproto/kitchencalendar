@@ -22,9 +22,13 @@ Currently, only US and Norwegian calendars can be generated, but pull requests f
 
 ![US kitchen calendar](img/us_kitchen_calendar.png)
 
+Note that the 4th of July is in bold.
+
 ### Example Norwegian PDF
 
 ![Norwegian kitchen calendar](img/no_kitchen_calendar.png)
+
+Note that the 17th of May is in bold.
 
 ### Installation
 
