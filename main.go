@@ -1,7 +1,6 @@
 package main
 
 import (
-	_ "embed"
 	"flag"
 	"fmt"
 	"os"
@@ -209,12 +208,6 @@ func getCurrentWeek() int {
 	_, week := now.ISOWeek()
 	// Return the week number
 	return week
-}
-
-// exists checks if the given path exists
-func exists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
 }
 
 // capitalize makes changes the first rune of a string to be in uppercase
