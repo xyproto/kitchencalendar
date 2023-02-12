@@ -1,4 +1,4 @@
-# Kitchen Calendar
+# Kitchen Calendar System
 
 ![Build](https://github.com/xyproto/kitchencalendar/workflows/Build/badge.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/xyproto/kitchencalendar)](https://goreportcard.com/report/github.com/xyproto/kitchencalendar) [![License](https://img.shields.io/badge/license-BSD-green.svg?style=flat)](https://raw.githubusercontent.com/xyproto/kitchencalendar/main/LICENSE)
 
@@ -58,4 +58,4 @@ For generating calendars for week 7 to 17 (with 2 weeks on each PDF), for this y
 
 * Version: 1.0.1
 * License: BSD-3
-* Author: Alexander F. Rødseth &lt;xyproto@archlinux.org&gt;
+* Author: Alexander F. Rødseth
