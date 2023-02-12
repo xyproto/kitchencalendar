@@ -45,90 +45,17 @@ func findFirstSunday(date time.Time) time.Time {
 	return firstSunday
 }
 
-// getMonthNameInNorwegian takes a time.Time and returns the name of the month in Norwegian
-func getMonthNameInNorwegian(t time.Time) string {
-	// Create a map of month numbers to month names in Norwegian
-	monthNames := map[int]string{
-		1:  "Januar",
-		2:  "Februar",
-		3:  "Mars",
-		4:  "April",
-		5:  "Mai",
-		6:  "Juni",
-		7:  "Juli",
-		8:  "August",
-		9:  "September",
-		10: "Oktober",
-		11: "November",
-		12: "Desember",
-	}
-	// Get the month number from the time.Time
-	monthNumber := t.Month()
-	// Return the month name from the map
-	return monthNames[int(monthNumber)]
-}
-
-// formatDate takes a time.Time and returns a string on the format "17. okt"
-func formatDate(date time.Time) string {
-	// Get the day of the month
-	day := date.Day()
-	// Get the month of the year
-	month := date.Month()
-	// Get the Norwegian abbreviation for the month
-	monthAbbrev := getMonthAbbrev(month)
-	// Return the formatted date
-	return fmt.Sprintf("%d. %s", day, monthAbbrev)
-}
-
-// getMonthAbbrev takes a time.Month and returns the Norwegian abbreviation
-func getMonthAbbrev(month time.Month) string {
-	switch month {
-	case time.January:
-		return "jan"
-	case time.February:
-		return "feb"
-	case time.March:
-		return "mar"
-	case time.April:
-		return "apr"
-	case time.May:
-		return "mai"
-	case time.June:
-		return "jun"
-	case time.July:
-		return "jul"
-	case time.August:
-		return "aug"
-	case time.September:
-		return "sep"
-	case time.October:
-		return "okt"
-	case time.November:
-		return "nov"
-	case time.December:
-		return "des"
-	default:
-		return ""
-	}
-}
-
 // generateTitle generates the main title of the calendar
 func generateTitle(year, week int) string {
 	mondayTime := firstMondayOfWeek(year, week)
-	monthName1 := getMonthNameInNorwegian(mondayTime)
+	monthName1 := getMonthName(mondayTime)
 	week++
 	mondayTime = firstMondayOfWeek(year, week)
-	monthName2 := getMonthNameInNorwegian(mondayTime)
+	monthName2 := getMonthName(mondayTime)
 	if monthName1 == monthName2 {
 		return fmt.Sprintf("%s %d", monthName1, year)
 	}
 	return fmt.Sprintf("%s - %s %d", monthName1, monthName2, year)
-}
-
-// generateWeekHeaderLeft creates the header for the left side of the week table
-// on the format "Uke N"
-func generateWeekHeaderLeft(year, week int) string {
-	return fmt.Sprintf("Uke %d", week)
 }
 
 // generateWeekHeaderLeft creates the header for the right side of the week table
@@ -162,26 +89,6 @@ func iterateDays(startDay, endDay time.Time, f func(time.Time) error) error {
 		}
 	}
 	return nil
-}
-
-// dayAndDate takes a time.Time and returns the day and date as a string in the form "Mandag 24.".
-func dayAndDate(t time.Time) string {
-	// Get the day of the week
-	day := t.Weekday().String()
-	// Get the day of the month
-	date := t.Day()
-	// Map the day of the week to Norwegian
-	dayMap := map[string]string{
-		"Monday":    "Mandag",
-		"Tuesday":   "Tirsdag",
-		"Wednesday": "Onsdag",
-		"Thursday":  "Torsdag",
-		"Friday":    "Fredag",
-		"Saturday":  "Lørdag",
-		"Sunday":    "Søndag",
-	}
-	// Return the day and date as a string
-	return fmt.Sprintf("%s %d.", dayMap[day], date)
 }
 
 // draw a week into the PDF
@@ -313,7 +220,7 @@ func main() {
 	week := *weekFlag
 	names := strings.Split(*nameString, ",")
 
-	calendar, err := kal.NewCalendar("nb_NO", true)
+	calendar, err := NewCalendar()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
@@ -367,7 +274,7 @@ func main() {
 
 	// Draw the first week
 	y += 50
-	if err := drawWeek(&pdf, &calendar, year, week, &x, &y, xRight, width, names); err != nil {
+	if err := drawWeek(&pdf, calendar, year, week, &x, &y, xRight, width, names); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
@@ -376,7 +283,7 @@ func main() {
 
 	// Draw the second week
 	y += 20
-	if err := drawWeek(&pdf, &calendar, year, week, &x, &y, xRight, width, names); err != nil {
+	if err := drawWeek(&pdf, calendar, year, week, &x, &y, xRight, width, names); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
