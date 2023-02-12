@@ -6,7 +6,7 @@ For instance, print out calendars for the next 10 weeks and attach them to the c
 
 It gives a very nice and hands-on overview of the coming weeks, and it's easy to sync and align what's happening with other people.
 
-Currently, the calendars are only in Norwegian, but pull requests are welcome.
+Currently, only Norwegian and US calendars are supported, but pull requests are welcome!
 
 ### Example PDF
 
