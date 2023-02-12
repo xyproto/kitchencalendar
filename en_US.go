@@ -1,4 +1,4 @@
-//go:build nb_NO
+//go:build en_US
 
 package main
 
@@ -16,32 +16,53 @@ func formatDate(cal kal.Calendar, date time.Time) string {
 	// Get the month of the year
 	month := date.Month()
 	// Get the calendar abbreviation for the month
-	monthAbbrev := getMonthAbbrev(cal, month)
+	monthAbbrev := capitalize(getMonthAbbrev(cal, month))
+	// Create the suffix for the date
+	suffix := "th"
+	switch day {
+	case 1, 21, 31:
+		suffix = "st"
+	case 2, 22:
+		suffix = "nd"
+	case 3, 23:
+		suffix = "rd"
+	}
 	// Return the formatted date
-	return fmt.Sprintf("%d. %s", day, monthAbbrev)
+	return fmt.Sprintf("%d%s of %s", day, suffix, monthAbbrev)
 }
 
 // generateWeekHeaderLeft creates the header for the left side of the week table
 // on the format "Uke N"
 func generateWeekHeaderLeft(year, week int) string {
-	return fmt.Sprintf("Uke %d", week)
+	return fmt.Sprintf("Week %d", week)
 }
 
-// dayAndDate takes a time.Time and returns the day and date as a string in the form "Mandag 24.".
+// dayAndDate takes a time.Time and returns the day and date as a string
+// on the form "Mon. 24st"
 func dayAndDate(cal kal.Calendar, t time.Time) string {
 	// Get the day of the week
-	day := t.Weekday()
-	// Get the name of the day
-	dayName := capitalize(cal.DayName(day))
+	dayName := t.Weekday().String()
+	// Abbreviate the day
+	dayName = dayName[:3]
 	// Get the day of the month
-	date := t.Day()
-	// Return the day and date as a string
-	return fmt.Sprintf("%s %d.", dayName, date)
+	day := t.Day()
+	// Create the suffix for the date
+	suffix := "th"
+	switch day {
+	case 1, 21, 31:
+		suffix = "st"
+	case 2, 22:
+		suffix = "nd"
+	case 3, 23:
+		suffix = "rd"
+	}
+	// Return the day and date string
+	return fmt.Sprintf("%s. %d%s", dayName, day, suffix)
 }
 
 // newCalendar returns a new struct that satisfies the kal.Calendar interface
 func newCalendar() (kal.Calendar, error) {
-	calendar, err := kal.NewCalendar("nb_NO", true)
+	calendar, err := kal.NewCalendar("en_US", true)
 	if err != nil {
 		return nil, err
 	}
