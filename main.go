@@ -117,7 +117,7 @@ func iterateDays(startDay, endDay time.Time, f func(time.Time) error) error {
 }
 
 // draw a week into the PDF
-func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64, xRight, width float64, names []string) error {
+func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64, width float64, names []string) error {
 	tableHeight := 300.0
 
 	// Draw the left vertical lines of the table
@@ -134,7 +134,8 @@ func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64,
 	if err := write(pdf, *x, *y, headerLeft, "bold", 14); err != nil {
 		return err
 	}
-	if err := write(pdf, xRight, *y, headerRight, "regular", 14); err != nil {
+	approxHeaderRightWidth := float64(len(headerRight)) * 5.0
+	if err := write(pdf, width-approxHeaderRightWidth, *y, headerRight, "regular", 14); err != nil {
 		return err
 	}
 
@@ -299,7 +300,6 @@ func main() {
 
 	y := 60.0
 	x := 35.0
-	xRight := 460.0
 	width := 538.0
 
 	// Draw the month and year title
@@ -311,7 +311,7 @@ func main() {
 
 	// Draw a little logo for this year and week in the top right, by using random lines
 	if *drawingFlag {
-		drawImage(&pdf, year, week, xRight-50, y-40, 170, 70)
+		drawImage(&pdf, year, week, width-128, y-40, 170, 70)
 	}
 
 	// Set the line width for the weeks and tables that will now be drawn
@@ -319,7 +319,7 @@ func main() {
 
 	// Draw the first week
 	y += 50
-	if err := drawWeek(&pdf, cal, year, week, &x, &y, xRight, width, names); err != nil {
+	if err := drawWeek(&pdf, cal, year, week, &x, &y, width, names); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
@@ -328,7 +328,7 @@ func main() {
 
 	// Draw the second week
 	y += 20
-	if err := drawWeek(&pdf, cal, year, week, &x, &y, xRight, width, names); err != nil {
+	if err := drawWeek(&pdf, cal, year, week, &x, &y, width, names); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
