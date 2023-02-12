@@ -15,7 +15,7 @@ import (
 	"github.com/xyproto/kal"
 )
 
-const versionString = "KitchenCalendar 0.2.0"
+const versionString = "KitchenCalendar 1.0.0"
 
 //go:embed ttf/nunito/Nunito-Regular.ttf
 var nunitoRegularData []byte
