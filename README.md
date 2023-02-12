@@ -10,7 +10,13 @@ Currently, only Norwegian and US calendars are supported, but pull requests are 
 
 ### Example PDF
 
+Version 0.1.0:
+
 ![kitchen calendar](img/kitchencalendar_februar_2023.png)
+
+Version 0.2.0:
+
+![kitchen calendar](img/kitchencalendar_februar_2023_us.png)
 
 ### Getting started
 
