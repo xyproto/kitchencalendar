@@ -298,7 +298,7 @@ func main() {
 		return
 	}
 
-	y := 60.0
+	y := 35.0
 	x := 35.0
 	width := 538.0
 
@@ -311,14 +311,14 @@ func main() {
 
 	// Draw a little logo for this year and week in the top right, by using random lines
 	if *drawingFlag {
-		drawImage(&pdf, year, week, width-128, y-40, 170, 70)
+		drawImage(&pdf, year, week, width-128, y-15, 170, 70)
 	}
 
 	// Set the line width for the weeks and tables that will now be drawn
 	pdf.SetLineWidth(0.5)
 
 	// Draw the first week
-	y += 50
+	y += 75
 	if err := drawWeek(&pdf, cal, year, week, &x, &y, width, names); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
