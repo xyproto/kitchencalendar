@@ -18,7 +18,7 @@ The reason why I wrote this utility is because we use it in my family, and it wo
 
 In addition to this, "red dates" (holidays / flag flying dates) are written in bold text in the calendar. The functionality for detecting "red days" comes from the [kal](https://github.com/xyproto/kal) package.
 
-Currently, only US and Norwegian calendars can be generated, but pull requests for supporting other countries are welcome!
+Currently, only US and Norwegian calendars can be generated, but pull requests for supporting other locales are welcome!
 
 ### Example US PDF
 
