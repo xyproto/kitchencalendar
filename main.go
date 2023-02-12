@@ -241,11 +241,21 @@ func capitalize(s string) string {
 	return string(append([]rune{firstRune}, runes[1:]...))
 }
 
+// getMonthName takes a time.Time and returns the name of the month in the current locale
+func getMonthName(cal kal.Calendar, t time.Time) string {
+	return capitalize(cal.MonthName(t.Month()))
+}
+
+// getMonthAbbrev takes a time.Month and returns the abbreviation in the current locale
+func getMonthAbbrev(cal kal.Calendar, month time.Month) string {
+	return strings.ToLower(cal.MonthName(month)[:3])
+}
+
 func main() {
 	outputFilename := flag.String("o", "calendar.pdf", "an output PDF filename")
 	yearFlag := flag.Int("year", getCurrentYear(), "the year")
 	weekFlag := flag.Int("week", getCurrentWeek(), "the week number")
-	nameString := flag.String("names", "Vilde,Synne,Aria,Alexander", "names used in the calendar")
+	nameString := flag.String("names", "Bob,Alice,Mallory,Judy", "names used in the calendar")
 	drawingFlag := flag.Bool("drawing", true, "include a drawing for each year and week in the top right corner")
 	verbose := flag.Bool("V", true, "verbose output")
 

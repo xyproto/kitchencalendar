@@ -4,16 +4,10 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/xyproto/kal"
 )
-
-// getMonthName takes a time.Time and returns the name of the month in Norwegian
-func getMonthName(cal kal.Calendar, t time.Time) string {
-	return capitalize(cal.MonthName(t.Month()))
-}
 
 // formatDate takes a time.Time and returns a string on the format "17. okt"
 func formatDate(cal kal.Calendar, date time.Time) string {
@@ -21,15 +15,10 @@ func formatDate(cal kal.Calendar, date time.Time) string {
 	day := date.Day()
 	// Get the month of the year
 	month := date.Month()
-	// Get the Norwegian abbreviation for the month
+	// Get the calendar abbreviation for the month
 	monthAbbrev := getMonthAbbrev(cal, month)
 	// Return the formatted date
 	return fmt.Sprintf("%d. %s", day, monthAbbrev)
-}
-
-// getMonthAbbrev takes a time.Month and returns the Norwegian abbreviation
-func getMonthAbbrev(cal kal.Calendar, month time.Month) string {
-	return strings.ToLower(cal.MonthName(month)[:3])
 }
 
 // generateWeekHeaderLeft creates the header for the left side of the week table
