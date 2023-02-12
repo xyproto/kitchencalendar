@@ -134,7 +134,7 @@ func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64,
 	if err := write(pdf, *x, *y, headerLeft, "bold", 14); err != nil {
 		return err
 	}
-	approxHeaderRightWidth := float64(len(headerRight)) * 5.0
+	approxHeaderRightWidth := float64(len(headerRight)) * 4.9
 	if err := write(pdf, width-approxHeaderRightWidth, *y, headerRight, "regular", 14); err != nil {
 		return err
 	}
