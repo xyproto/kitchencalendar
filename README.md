@@ -1,4 +1,4 @@
-# The Kitchen Calendar System
+# Kitchen Calendar System
 
 ![Build](https://github.com/xyproto/kitchencalendar/workflows/Build/badge.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/xyproto/kitchencalendar)](https://goreportcard.com/report/github.com/xyproto/kitchencalendar) [![License](https://img.shields.io/badge/license-BSD-green.svg?style=flat)](https://raw.githubusercontent.com/xyproto/kitchencalendar/main/LICENSE)
 
