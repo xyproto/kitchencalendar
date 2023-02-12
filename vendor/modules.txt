@@ -1,3 +1,13 @@
+# github.com/fogleman/gg v1.3.0
+## explicit
+github.com/fogleman/gg
+# github.com/fogleman/ln v0.0.0-20170223135521-12e6c6e74459
+## explicit
+github.com/fogleman/ln/ln
+# github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
+## explicit
+github.com/golang/freetype/raster
+github.com/golang/freetype/truetype
 # github.com/phpdave11/gofpdi v1.0.14-0.20211212211723-1f10f9844311
 ## explicit; go 1.12
 github.com/phpdave11/gofpdi
@@ -14,3 +24,10 @@ github.com/xyproto/env/v2
 # github.com/xyproto/kal v1.3.0
 ## explicit; go 1.4
 github.com/xyproto/kal
+# golang.org/x/image v0.4.0
+## explicit; go 1.12
+golang.org/x/image/draw
+golang.org/x/image/font
+golang.org/x/image/font/basicfont
+golang.org/x/image/math/f64
+golang.org/x/image/math/fixed
