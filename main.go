@@ -225,8 +225,8 @@ func main() {
 		drawLineImage(&pdf, year, week, width-40, y-10, 70, 70)
 	}
 
-	// Set the line width for the weeks and tables that will now be drawn
-	pdf.SetLineWidth(0.1)
+	// Set the line width for the weeks and tables
+	pdf.SetLineWidth(1.0)
 
 	// Draw the first week
 	y += 75
