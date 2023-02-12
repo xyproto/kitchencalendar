@@ -14,11 +14,17 @@ Currently, the calendars are only in Norwegian, but pull requests are welcome.
 
 ### Getting started
 
-Install the utility, for Go >= 1.17
+Go 1.17 or later is needed for `go install` to work as expected.
 
-    go install github.com/xyproto/kitchencalendar@latest
+Install the US calendar utility:
 
-For creating a `calendar.pdf` file
+    go install -tags en_US github.com/xyproto/kitchencalendar@latest
+
+Install the Norwegian calendar utility:
+
+    go install -tags nb_NO github.com/xyproto/kitchencalendar@latest
+
+For creating a `calendar.pdf` file:
 
     kitchencalendar -names Bob,Alice,Mallory,Judy -year 2023 -week 8
 
@@ -26,8 +32,23 @@ For generating calendars for week 7 to 17 (with 2 weeks on each PDF), for this y
 
     for x in $(seq 7 2 17); do kitchencalendar -names Bob,Alice,Mallory,Judy -week $x -o week$x.pdf; done
 
+Pull requests for additional locales are welcome!
+
+### Building with make
+
+Fetch the sources:
+
+    git clone https://github.com/xyproto/kitchencalendar
+    cd kitchencalendar
+
+Building all calendars:
+
+    make
+
+This results in `kitchencalendar_us`, `kitchencalendar_no` etc.
+
 ### General info
 
-* Version: 0.0.1
+* Version: 0.1.0
 * License: BSD-3
 * Author: Alexander F. Rødseth &lt;xyproto@archlinux.org&gt;
