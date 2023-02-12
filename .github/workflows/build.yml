@@ -16,8 +16,10 @@ jobs:
         go-version: ${{ matrix.go-version }}
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Test
-      run: go test ./...
+    - name: Test nb_NO
+      run: go test -tags nb_NO ./...
+    - name: Test en_US
+      run: go test -tags en_US ./...
 
   test-cache:
     runs-on: ubuntu-latest
@@ -38,5 +40,7 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
-    - name: Test
-      run: go test ./...
+    - name: Test nb_NO
+      run: go test -tags nb_NO ./...
+    - name: Test en_US
+      run: go test -tags en_US ./...
