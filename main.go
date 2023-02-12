@@ -66,7 +66,7 @@ func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64,
 	pdf.Line(*x+width, *y+20, *x+width, *y+tableHeight+37.2)
 
 	// Generate the titles for this week
-	headerLeft := generateWeekHeaderLeft(year, week)
+	headerLeft := weekString(week)
 	headerRight := generateWeekHeaderRight(cal, year, week)
 
 	// Draw the header for the 1st week

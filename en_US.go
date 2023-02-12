@@ -31,9 +31,8 @@ func formatDate(cal kal.Calendar, date time.Time) string {
 	return fmt.Sprintf("%d%s of %s", day, suffix, monthAbbrev)
 }
 
-// generateWeekHeaderLeft creates the header for the left side of the week table
-// on the format "Uke N"
-func generateWeekHeaderLeft(year, week int) string {
+// weekString creates the header for the left side of the week table
+func weekString(week int) string {
 	return fmt.Sprintf("Week %d", week)
 }
 
