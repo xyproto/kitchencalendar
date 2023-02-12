@@ -4,9 +4,7 @@ import (
 	_ "embed"
 	"flag"
 	"fmt"
-	"math/rand"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 	"unicode"
@@ -19,9 +17,6 @@ import (
 const versionString = "KitchenCalendar 0.2.0"
 
 var paperSize = env.Str("PAPERSIZE", "A4")
-
-//go:embed img/palmtree.jpg
-var imageData []byte
 
 // firstMondayOfWeek finds the first monday of the week, given a year and a week number
 func firstMondayOfWeek(year, week int) time.Time {
@@ -222,43 +217,6 @@ func exists(path string) bool {
 	return err == nil
 }
 
-func drawImage(pdf *gopdf.GoPdf, year, week int, x, y, w, h float64) error {
-	tempdir := env.Str("TMPDIR", "/tmp")
-	filename := filepath.Join(tempdir, "palmtree.jpg")
-	if err := os.WriteFile(filename, imageData, 0o664); err != nil {
-		return err
-	}
-	if !exists(filename) {
-		return fmt.Errorf("could not find %s", filename)
-	}
-	pdf.Image(filename, x-61.5, y, nil)
-	return nil
-}
-
-func drawRandomImage(pdf *gopdf.GoPdf, year, week int, x, y, w, h float64) {
-	r := rand.New(rand.NewSource(int64(year)*256 + int64(week)))
-	maxLineWidth := 2.0
-	pdf.SetLineWidth(r.Float64() * maxLineWidth)
-	px1 := float64(r.Intn(int(w)))
-	py1 := float64(r.Intn(int(h)))
-	for i := 0; i < 20; i++ {
-		px2 := float64(r.Intn(int(w)))
-		py2 := float64(r.Intn(int(h)))
-		pdf.Line(x+px1, y+py1, x+px2, y+py2)
-		px1 = px2
-		py1 = py2
-	}
-	maxLineWidth = 3.0
-	for i := 0; i < 5; i++ {
-		px1 := float64(r.Intn(int(w)))
-		py1 := float64(r.Intn(int(h)))
-		px2 := float64(r.Intn(int(w)))
-		py2 := float64(r.Intn(int(h)))
-		pdf.SetLineWidth(r.Float64() * maxLineWidth)
-		pdf.Oval(x+px1, y+py1, x+px2, y+py2)
-	}
-}
-
 // capitalize makes changes the first rune of a string to be in uppercase
 func capitalize(s string) string {
 	if len(s) == 0 {
@@ -337,15 +295,11 @@ func main() {
 	}
 
 	if *drawingFlag {
-		// Draw a little logo for this year and week in the top right, by using random lines
-		//drawRandomImage(&pdf, year, week, width-128, y-15, 170, 70)
-
-		// Place an image into the PDF
-		drawImage(&pdf, year, week, width-128, y-15, 170, 70)
+		drawLineImage(&pdf, year, week, width-40, y-10, 70, 70)
 	}
 
 	// Set the line width for the weeks and tables that will now be drawn
-	pdf.SetLineWidth(0.5)
+	pdf.SetLineWidth(0.1)
 
 	// Draw the first week
 	y += 75
