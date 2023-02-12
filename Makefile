@@ -2,11 +2,11 @@
 
 all: kitchencalendar_no kitchencalendar_us
 
-kitchencalendar_no: main.go nb_NO.go img/palmtree.jpg
+kitchencalendar_no: main.go nb_NO.go
 	go build -mod=vendor -tags nb_NO -o $@
 
-kitchencalendar_us: main.go en_US.go img/palmtree.jpg
+kitchencalendar_us: main.go en_US.go
 	go build -mod=vendor -tags en_US -o $@
 
 clean:
-	rm kitchencalendar_*
+	rm -f kitchencalendar kitchencalendar_*
