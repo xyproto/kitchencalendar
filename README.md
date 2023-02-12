@@ -46,13 +46,13 @@ Install the Norwegian kitchen calendar generator:
 
 ### Usage
 
-For creating a `calendar.pdf` file:
+For creating a `calendar_w8_2023.pdf` file:
 
     kitchencalendar -names Bob,Alice,Mallory,Judy -year 2023 -week 8
 
 For generating calendars for week 7 to 17 (with 2 weeks on each PDF), for this year
 
-    for x in $(seq 7 2 17); do kitchencalendar -names Bob,Alice,Mallory,Judy -week $x -o week$x.pdf; done
+    for x in $(seq 7 2 17); do kitchencalendar -names Bob,Alice,Mallory,Judy -week $x; done
 
 ### General info
 
