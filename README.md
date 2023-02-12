@@ -1,5 +1,7 @@
 # Kitchen Calendar
 
+![Build](https://github.com/xyproto/kitchencalendar/workflows/Build/badge.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/xyproto/kitchencalendar)](https://goreportcard.com/report/github.com/xyproto/kitchencalendar) [![License](https://img.shields.io/badge/license-BSD-green.svg?style=flat)](https://raw.githubusercontent.com/xyproto/kitchencalendar/main/LICENSE)
+
 Kitchen Calendar is a utility written in Go that can generate PDF files.
 
 Each year has 52 weeks. Each generated PDF document is a calendar for two specific weeks, for example week 7 and 8.
