@@ -12,7 +12,7 @@ import (
 // Setting useCaching to true makes the functions below stop callig os.Getenv,
 // only call os.Environ once and then use the environment map to read variables from.
 var (
-	useCaching  bool
+	useCaching  = true
 	environment map[string]string
 	mut         sync.RWMutex
 )

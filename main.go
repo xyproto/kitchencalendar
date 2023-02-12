@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/signintech/gopdf"
-	"github.com/xyproto/env"
+	"github.com/xyproto/env/v2"
 	"github.com/xyproto/kal"
 )
 

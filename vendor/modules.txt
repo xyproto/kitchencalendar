@@ -8,9 +8,9 @@ github.com/pkg/errors
 ## explicit; go 1.13
 github.com/signintech/gopdf
 github.com/signintech/gopdf/fontmaker/core
-# github.com/xyproto/env v1.9.1
+# github.com/xyproto/env/v2 v2.0.0
 ## explicit; go 1.15
-github.com/xyproto/env
+github.com/xyproto/env/v2
 # github.com/xyproto/kal v1.3.0
 ## explicit; go 1.4
 github.com/xyproto/kal
