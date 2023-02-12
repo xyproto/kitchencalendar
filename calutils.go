@@ -54,9 +54,9 @@ func firstSaturdayAfter(date time.Time) time.Time {
 	// Get the day of the week for the given date
 	dayOfWeek := date.Weekday()
 	// Calculate the number of days until the next Saturday
-	daysUntilSaturday := 6 - int(dayOfWeek)
+	daysToAdd := 6 - int(dayOfWeek)
 	// Add the number of days until the next Saturday to the given date
-	return date.AddDate(0, 0, daysUntilSaturday)
+	return date.AddDate(0, 0, daysToAdd)
 }
 
 // iterateDays iterates over days from startDay to endDay (inclusive) and calls f for each day
