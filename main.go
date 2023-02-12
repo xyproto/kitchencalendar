@@ -16,7 +16,7 @@ import (
 	"github.com/xyproto/kal"
 )
 
-const versionString = "KitchenCalendar 0.0.1"
+const versionString = "KitchenCalendar 0.2.0"
 
 var paperSize = env.Str("PAPERSIZE", "A4")
 

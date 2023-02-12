@@ -49,6 +49,6 @@ This results in `kitchencalendar_us`, `kitchencalendar_no` etc.
 
 ### General info
 
-* Version: 0.1.0
+* Version: 0.2.0
 * License: BSD-3
 * Author: Alexander F. Rødseth &lt;xyproto@archlinux.org&gt;
