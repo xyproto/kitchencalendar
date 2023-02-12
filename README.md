@@ -12,10 +12,19 @@ Currently, the calendars are only in Norwegian, but pull requests are welcome.
 
 ![kitchen calendar](img/kitchencalendar_februar_2023.png)
 
-### Example use for Go >= 1.17
+### Getting started
+
+Install the utility, for Go >= 1.17
 
     go install github.com/xyproto/kitchencalendar@latest
+
+For creating a `calendar.pdf` file
+
     kitchencalendar -names Bob,Alice,Mallory,Judy -year 2023 -week 8
+
+For generating calendars for week 7 to 17 (with 2 weeks on each PDF), for this year
+
+    for x in $(seq 7 2 17); do kitchencalendar -names Bob,Alice,Mallory,Judy -week $x -o week$x.pdf; done
 
 ### General info
 
