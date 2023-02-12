@@ -5,7 +5,7 @@ import (
 	"unicode"
 )
 
-// capitalize makes changes the first rune of a string to be in uppercase
+// capitalize makes it so that the first run of a given string is in uppercase
 func capitalize(s string) string {
 	if len(s) == 0 {
 		return s
