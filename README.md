@@ -12,7 +12,7 @@ This type of calendar can work great if for instance a family of 4, a couple of 
 
 By printing out and hanging up the calendars on the kitchen cupboard doors, there are no excuses for not having a good overview of what is happening in the weeks ahead.
 
-I recommend printing out at least 5 pages, which covers 10 weeks, and hang them all up. It does occupy quite a bit of "visual space" in the kitchen, but it's immensely handy and practical.
+I recommend printing out at least 6 pages, which covers 12 weeks, and hang them all up. It does occupy quite a bit of "visual space" in the kitchen, but it's immensely handy and practical.
 
 The reason why I wrote this utility is because we use it in my family, and it works better for us than Google Calendar or other apps or web pages. The information is readily available without anyone having to "do anything" to see it.
 
