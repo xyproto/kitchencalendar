@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/signintech/gopdf"
 	"github.com/xyproto/env/v2"
@@ -33,25 +34,49 @@ func firstMondayOfWeek(year, week int) time.Time {
 	return t
 }
 
-// findFirstSunday finds the first sunday after the given date
-func findFirstSunday(date time.Time) time.Time {
+// firstSundayOfWeek finds the first monday of the week, given a year and a week number
+func firstSundayOfWeek(year, week int) time.Time {
+	// Create a time object for the given year
+	t := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
+	// Calculate the number of days to add to the time object
+	// to get the first Monday of the given week number
+	daysToAdd := (week - 1) * 7
+	t = t.AddDate(0, 0, daysToAdd)
+	// If the day of the week is not Sunday,
+	// add the number of days to get to the next Sunday
+	for t.Weekday() != time.Sunday {
+		t = t.AddDate(0, 0, 1)
+	}
+	return t
+}
+
+// firstSundayAfter finds the first Sunday after the given date
+func firstSundayAfter(date time.Time) time.Time {
 	// Get the day of the week for the given date
 	dayOfWeek := date.Weekday()
 	// Calculate the number of days to add to the given date to get the first Sunday
 	daysToAdd := 7 - int(dayOfWeek)
-	// Add the calculated number of days to the given date
-	firstSunday := date.AddDate(0, 0, daysToAdd)
-	// Return the first Sunday as a string
-	return firstSunday
+	// Add the calculated number of days to the given date and return it
+	return date.AddDate(0, 0, daysToAdd)
+}
+
+// FirstSaturdayAfter takes a time.Time and returns the first Saturday after the given date as a time.Time
+func firstSaturdayAfter(date time.Time) time.Time {
+	// Get the day of the week for the given date
+	dayOfWeek := date.Weekday()
+	// Calculate the number of days until the next Saturday
+	daysUntilSaturday := 6 - int(dayOfWeek)
+	// Add the number of days until the next Saturday to the given date
+	return date.AddDate(0, 0, daysUntilSaturday)
 }
 
 // generateTitle generates the main title of the calendar
-func generateTitle(year, week int) string {
+func generateTitle(cal kal.Calendar, year, week int) string {
 	mondayTime := firstMondayOfWeek(year, week)
-	monthName1 := getMonthName(mondayTime)
+	monthName1 := getMonthName(cal, mondayTime)
 	week++
 	mondayTime = firstMondayOfWeek(year, week)
-	monthName2 := getMonthName(mondayTime)
+	monthName2 := getMonthName(cal, mondayTime)
 	if monthName1 == monthName2 {
 		return fmt.Sprintf("%s %d", monthName1, year)
 	}
@@ -60,10 +85,10 @@ func generateTitle(year, week int) string {
 
 // generateWeekHeaderLeft creates the header for the right side of the week table
 // on the format: from date -> to date
-func generateWeekHeaderRight(year, week int) string {
+func generateWeekHeaderRight(cal kal.Calendar, year, week int) string {
 	mondayTime := firstMondayOfWeek(year, week)
-	sundayTime := findFirstSunday(mondayTime)
-	return fmt.Sprintf("%s -> %s", formatDate(mondayTime), formatDate(sundayTime))
+	sundayTime := firstSundayAfter(mondayTime)
+	return fmt.Sprintf("%s -> %s", formatDate(cal, mondayTime), formatDate(cal, sundayTime))
 }
 
 func write(pdf *gopdf.GoPdf, x, y float64, text string, fontName string, fontSize int) error {
@@ -92,7 +117,7 @@ func iterateDays(startDay, endDay time.Time, f func(time.Time) error) error {
 }
 
 // draw a week into the PDF
-func drawWeek(pdf *gopdf.GoPdf, calendar *kal.Calendar, year, week int, x, y *float64, xRight, width float64, names []string) error {
+func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64, xRight, width float64, names []string) error {
 	tableHeight := 300.0
 
 	// Draw the left vertical lines of the table
@@ -103,7 +128,7 @@ func drawWeek(pdf *gopdf.GoPdf, calendar *kal.Calendar, year, week int, x, y *fl
 
 	// Generate the titles for this week
 	headerLeft := generateWeekHeaderLeft(year, week)
-	headerRight := generateWeekHeaderRight(year, week)
+	headerRight := generateWeekHeaderRight(cal, year, week)
 
 	// Draw the header for the 1st week
 	if err := write(pdf, *x, *y, headerLeft, "bold", 14); err != nil {
@@ -119,16 +144,16 @@ func drawWeek(pdf *gopdf.GoPdf, calendar *kal.Calendar, year, week int, x, y *fl
 
 	// Find monday and sunday
 	mondayTime := firstMondayOfWeek(year, week)
-	sundayTime := findFirstSunday(mondayTime)
+	sundayTime := firstSundayAfter(mondayTime)
 
 	// Draw the week names and vertical lines for the 1st week
 	originalX := *x
 	*x += 70
 	err := iterateDays(mondayTime, sundayTime, func(t time.Time) error {
-		text := dayAndDate(t)
+		text := dayAndDate(cal, t)
 
 		fontName := "regular"
-		if isRedDay := kal.RedDay(*calendar, t); t.Weekday() == time.Sunday || isRedDay { // Red day
+		if isRedDay := kal.RedDay(cal, t); t.Weekday() == time.Sunday || isRedDay { // Red day
 			fontName = "bold"
 		}
 
@@ -206,6 +231,16 @@ func drawImage(pdf *gopdf.GoPdf, year, week int, x, y, w, h float64) {
 	}
 }
 
+// capitalize makes changes the first rune of a string to be in uppercase
+func capitalize(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	runes := []rune(s)
+	firstRune := unicode.ToUpper(runes[0])
+	return string(append([]rune{firstRune}, runes[1:]...))
+}
+
 func main() {
 	outputFilename := flag.String("o", "calendar.pdf", "an output PDF filename")
 	yearFlag := flag.Int("year", getCurrentYear(), "the year")
@@ -220,7 +255,7 @@ func main() {
 	week := *weekFlag
 	names := strings.Split(*nameString, ",")
 
-	calendar, err := NewCalendar()
+	cal, err := newCalendar()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
@@ -258,7 +293,7 @@ func main() {
 	width := 538.0
 
 	// Draw the month and year title
-	title := generateTitle(year, week)
+	title := generateTitle(cal, year, week)
 	if err := write(&pdf, x, y, title, "bold", 24); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
@@ -274,7 +309,7 @@ func main() {
 
 	// Draw the first week
 	y += 50
-	if err := drawWeek(&pdf, calendar, year, week, &x, &y, xRight, width, names); err != nil {
+	if err := drawWeek(&pdf, cal, year, week, &x, &y, xRight, width, names); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
@@ -283,7 +318,7 @@ func main() {
 
 	// Draw the second week
 	y += 20
-	if err := drawWeek(&pdf, calendar, year, week, &x, &y, xRight, width, names); err != nil {
+	if err := drawWeek(&pdf, cal, year, week, &x, &y, xRight, width, names); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
