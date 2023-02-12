@@ -246,7 +246,7 @@ func exists(path string) bool {
 }
 
 func main() {
-	outputFilename := flag.String("o", "calendar.pdf", "an output PDF filename")
+	outputFilename := flag.String("o", "", "an output PDF filename")
 	yearFlag := flag.Int("year", getCurrentYear(), "the year")
 	weekFlag := flag.Int("week", getCurrentWeek(), "the week number")
 	nameString := flag.String("names", "Bob,Alice,Mallory,Judy", "names used in the calendar")
@@ -258,6 +258,13 @@ func main() {
 	year := *yearFlag
 	week := *weekFlag
 	names := strings.Split(*nameString, ",")
+
+	filename := ""
+	if *outputFilename == "" {
+		filename = fmt.Sprintf("calendar_w%d_%d.pdf", week, year)
+	} else {
+		filename = *outputFilename
+	}
 
 	cal, err := newCalendar()
 	if err != nil {
@@ -348,11 +355,9 @@ func main() {
 	}
 
 	if *verbose {
-		fmt.Printf("Writing to %s... ", *outputFilename)
+		fmt.Printf("Writing to %s... ", filename)
 	}
-
-	pdf.WritePdf(*outputFilename)
-
+	pdf.WritePdf(filename)
 	if *verbose {
 		fmt.Println("done")
 	}
