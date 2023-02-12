@@ -1,10 +1,12 @@
 package main
 
 import (
+	_ "embed"
 	"flag"
 	"fmt"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 	"unicode"
@@ -17,6 +19,9 @@ import (
 const versionString = "KitchenCalendar 0.0.1"
 
 var paperSize = env.Str("PAPERSIZE", "A4")
+
+//go:embed img/palmtree.jpg
+var imageData []byte
 
 // firstMondayOfWeek finds the first monday of the week, given a year and a week number
 func firstMondayOfWeek(year, week int) time.Time {
@@ -211,7 +216,26 @@ func getCurrentWeek() int {
 	return week
 }
 
-func drawImage(pdf *gopdf.GoPdf, year, week int, x, y, w, h float64) {
+// exists checks if the given path exists
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
+func drawImage(pdf *gopdf.GoPdf, year, week int, x, y, w, h float64) error {
+	tempdir := env.Str("TMPDIR", "/tmp")
+	filename := filepath.Join(tempdir, "palmtree.jpg")
+	if err := os.WriteFile(filename, imageData, 0o664); err != nil {
+		return err
+	}
+	if !exists(filename) {
+		return fmt.Errorf("could not find %s", filename)
+	}
+	pdf.Image(filename, x-61.5, y, nil)
+	return nil
+}
+
+func drawRandomImage(pdf *gopdf.GoPdf, year, week int, x, y, w, h float64) {
 	r := rand.New(rand.NewSource(int64(year)*256 + int64(week)))
 	maxLineWidth := 2.0
 	pdf.SetLineWidth(r.Float64() * maxLineWidth)
@@ -312,8 +336,11 @@ func main() {
 		return
 	}
 
-	// Draw a little logo for this year and week in the top right, by using random lines
 	if *drawingFlag {
+		// Draw a little logo for this year and week in the top right, by using random lines
+		//drawRandomImage(&pdf, year, week, width-128, y-15, 170, 70)
+
+		// Place an image into the PDF
 		drawImage(&pdf, year, week, width-128, y-15, 170, 70)
 	}
 
