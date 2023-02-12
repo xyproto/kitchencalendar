@@ -6,15 +6,15 @@ Each year has 52 weeks. Each generated PDF document is a calendar for two specif
 
 The utility also takes a list of comma separated names that are used in the weekly overviews.
 
-This type of calender can work great if for instance a family of 4, a couple of co-workers or people living together need to collaborate.
+This type of calendar can work great if for instance a family of 4, a couple of co-workers or people living together need to collaborate.
 
-By printing out and hanging up the calendars on the kitchen cup board doors, there are no excuses for not having a good overview of what is happening in the weeks ahead.
+By printing out and hanging up the calendars on the kitchen cupboard doors, there are no excuses for not having a good overview of what is happening in the weeks ahead.
 
 I recommend printing out at least 5 pages, which covers 10 weeks, and hang them all up. It does occupy quite a bit of "visual space" in the kitchen, but it's immensely handy and practical.
 
-The reason why I wrote this utility is because we use it in my little family, and it works better for us than Google Calendar or other apps or web pages. The information is readily available without anyone haveing to "do anything" in order to get it.
+The reason why I wrote this utility is because we use it in my little family, and it works better for us than Google Calendar or other apps or web pages. The information is readily available without anyone having to "do anything" in order to get it.
 
-In addition to this, "red dates" (holydays / flag flying dates) are written in bold text in the calendar.
+In addition to this, "red dates" (holidays / flag flying dates) are written in bold text in the calendar.
 
 Currently, only US and Norwegian calendars can be generated, but pull requests for supporting other countries are welcome! The functionality for detecting "red days" comes from the [kal](https://github.com/xyproto/kal) package.
 
