@@ -15,15 +15,13 @@ import (
 	"github.com/xyproto/kal"
 )
 
-const versionString = "KitchenCalendar 1.0.0"
+var paperSize = env.Str("PAPERSIZE", "A4")
 
 //go:embed ttf/nunito/Nunito-Regular.ttf
 var nunitoRegularData []byte
 
 //go:embed ttf/nunito/Nunito-Bold.ttf
 var nunitoBoldData []byte
-
-var paperSize = env.Str("PAPERSIZE", "A4")
 
 // generateTitle generates the main title of the calendar
 func generateTitle(cal kal.Calendar, year, week int) string {
