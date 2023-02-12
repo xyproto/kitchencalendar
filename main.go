@@ -9,7 +9,6 @@ import (
 	"os"
 	"strings"
 	"time"
-	"unicode"
 
 	"github.com/signintech/gopdf"
 	"github.com/xyproto/env/v2"
@@ -25,58 +24,6 @@ var nunitoRegularData []byte
 var nunitoBoldData []byte
 
 var paperSize = env.Str("PAPERSIZE", "A4")
-
-// firstMondayOfWeek finds the first monday of the week, given a year and a week number
-func firstMondayOfWeek(year, week int) time.Time {
-	// Create a time object for the given year
-	t := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
-	// Calculate the number of days to add to the time object
-	// to get the first Monday of the given week number
-	daysToAdd := (week - 1) * 7
-	t = t.AddDate(0, 0, daysToAdd)
-	// If the day of the week is not Monday,
-	// add the number of days to get to the next Monday
-	for t.Weekday() != time.Monday {
-		t = t.AddDate(0, 0, 1)
-	}
-	return t
-}
-
-// firstSundayOfWeek finds the first monday of the week, given a year and a week number
-func firstSundayOfWeek(year, week int) time.Time {
-	// Create a time object for the given year
-	t := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
-	// Calculate the number of days to add to the time object
-	// to get the first Monday of the given week number
-	daysToAdd := (week - 1) * 7
-	t = t.AddDate(0, 0, daysToAdd)
-	// If the day of the week is not Sunday,
-	// add the number of days to get to the next Sunday
-	for t.Weekday() != time.Sunday {
-		t = t.AddDate(0, 0, 1)
-	}
-	return t
-}
-
-// firstSundayAfter finds the first Sunday after the given date
-func firstSundayAfter(date time.Time) time.Time {
-	// Get the day of the week for the given date
-	dayOfWeek := date.Weekday()
-	// Calculate the number of days to add to the given date to get the first Sunday
-	daysToAdd := 7 - int(dayOfWeek)
-	// Add the calculated number of days to the given date and return it
-	return date.AddDate(0, 0, daysToAdd)
-}
-
-// FirstSaturdayAfter takes a time.Time and returns the first Saturday after the given date as a time.Time
-func firstSaturdayAfter(date time.Time) time.Time {
-	// Get the day of the week for the given date
-	dayOfWeek := date.Weekday()
-	// Calculate the number of days until the next Saturday
-	daysUntilSaturday := 6 - int(dayOfWeek)
-	// Add the number of days until the next Saturday to the given date
-	return date.AddDate(0, 0, daysUntilSaturday)
-}
 
 // generateTitle generates the main title of the calendar
 func generateTitle(cal kal.Calendar, year, week int) string {
@@ -105,22 +52,6 @@ func write(pdf *gopdf.GoPdf, x, y float64, text string, fontName string, fontSiz
 	}
 	pdf.SetXY(x, y)
 	pdf.Cell(nil, text)
-	return nil
-}
-
-// iterateDays iterates over days from startDay to endDay (inclusive) and calls f for each day
-func iterateDays(startDay, endDay time.Time, f func(time.Time) error) error {
-	// Create a new time.Time object representing the start of the startDay
-	start := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, startDay.Location())
-	// Create a new time.Time object representing the start of the endDay
-	end := time.Date(endDay.Year(), endDay.Month(), endDay.Day(), 0, 0, 0, 0, endDay.Location())
-	// Iterate over the days from start to end
-	for d := start; d.Before(end) || d.Equal(end); d = d.AddDate(0, 0, 1) {
-		// Call the function with the current day
-		if err := f(d); err != nil {
-			return err
-		}
-	}
 	return nil
 }
 
@@ -202,47 +133,6 @@ func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64,
 	}
 
 	return nil
-}
-
-// GetCurrentYear returns the current year as an int
-func getCurrentYear() int {
-	return time.Now().Year()
-}
-
-// getCurrentWeek returns the current week number as an int
-func getCurrentWeek() int {
-	// Get the current time
-	now := time.Now()
-	// Get the ISO year and week number
-	_, week := now.ISOWeek()
-	// Return the week number
-	return week
-}
-
-// capitalize makes changes the first rune of a string to be in uppercase
-func capitalize(s string) string {
-	if len(s) == 0 {
-		return s
-	}
-	runes := []rune(s)
-	firstRune := unicode.ToUpper(runes[0])
-	return string(append([]rune{firstRune}, runes[1:]...))
-}
-
-// getMonthName takes a time.Time and returns the name of the month in the current locale
-func getMonthName(cal kal.Calendar, t time.Time) string {
-	return capitalize(cal.MonthName(t.Month()))
-}
-
-// getMonthAbbrev takes a time.Month and returns the abbreviation in the current locale
-func getMonthAbbrev(cal kal.Calendar, month time.Month) string {
-	return strings.ToLower(cal.MonthName(month)[:3])
-}
-
-// exists checks if the given path exists
-func exists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
 }
 
 func main() {

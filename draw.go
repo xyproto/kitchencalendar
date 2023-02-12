@@ -2,25 +2,13 @@ package main
 
 import (
 	"math/rand"
-	"time"
 
 	"github.com/fogleman/ln/ln"
 	"github.com/signintech/gopdf"
 )
 
-// monthNumber returns the month number given a year int and a week int.
-func monthNumber(year, week int) int {
-	// Get the first day of the year
-	firstDay := time.Date(year, time.January, 1, 0, 0, 0, 0, time.UTC)
-	// Get the first day of the week
-	firstWeekDay := firstDay.AddDate(0, 0, (week-1)*7)
-	// Return the month number
-	return int(firstWeekDay.Month())
-}
-
 // drawLineImage draws an image into the PDF, using only lines
 func drawLineImage(pdf *gopdf.GoPdf, year, week int, x, y, width, height float64) error {
-
 	var (
 		month = monthNumber(year, week)
 		paths ln.Paths
