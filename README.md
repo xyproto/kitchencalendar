@@ -1,38 +1,44 @@
 # Kitchen Calendar
 
-Generate per-week calendars that can be printed out and hung up in the kitchen.
+Kitchen Calendar is a utility written in Go that can generate PDF files.
 
-This program is a work in progress.
+Each year has 52 weeks. Each generated PDF document is a calendar for two specific weeks, for example week 7 and 8.
 
-For instance, print out calendars for the next 10 weeks and attach them to the cupboard doors with Blu Tack or another adhesive.
+The utility also takes a list of comma separated names that are used in the weekly overviews.
 
-It gives a very nice and hands-on overview of the coming weeks, and it's easy to sync and align what's happening with other people.
+This type of calender can work great if for instance a family of 4, a couple of co-workers or people living together need to collaborate.
 
-Currently, only Norwegian and US calendars are supported, but pull requests are welcome!
+By printing out and hanging up the calendars on the kitchen cup board doors, there are no excuses for not having a good overview of what is happening in the weeks ahead.
 
-### Example PDF
+I recommend printing out at least 5 pages, which covers 10 weeks, and hang them all up. It does occupy quite a bit of "visual space" in the kitchen, but it's immensely handy and practical.
 
-Version 0.1.0:
+The reason why I wrote this utility is because we use it in my little family, and it works better for us than Google Calendar or other apps or web pages. The information is readily available without anyone haveing to "do anything" in order to get it.
 
-![kitchen calendar](img/kitchencalendar_februar_2023.png)
+In addition to this, "red dates" (holydays / flag flying dates) are written in bold text in the calendar.
 
-Version 0.2.0:
+Currently, only US and Norwegian calendars can be generated, but pull requests for supporting other countries are welcome! The functionality for detecting "red days" comes from the [kal](https://github.com/xyproto/kal) package.
 
-![kitchen calendar](img/kitchencalendar_februar_2023_us.png)
+### Example US PDF
 
-The image is just a placeholder and can be swapped out.
+![US kitchen calendar](img/us_kitchen_calendar.png)
 
-### Getting started
+### Example Norwegian PDF
+
+![Norwegian kitchen calendar](img/no_kitchen_calendar.png)
+
+### Installation
 
 Go 1.17 or later is needed for `go install` to work as expected.
 
-Install the US calendar utility:
+Install the US kitchen calendar generator:
 
     go install -tags en_US github.com/xyproto/kitchencalendar@latest
 
-Install the Norwegian calendar utility:
+Install the Norwegian kitchen calendar generator:
 
     go install -tags nb_NO github.com/xyproto/kitchencalendar@latest
+
+### Usage
 
 For creating a `calendar.pdf` file:
 
@@ -42,23 +48,8 @@ For generating calendars for week 7 to 17 (with 2 weeks on each PDF), for this y
 
     for x in $(seq 7 2 17); do kitchencalendar -names Bob,Alice,Mallory,Judy -week $x -o week$x.pdf; done
 
-Pull requests for additional locales are welcome!
-
-### Building with make
-
-Fetch the sources:
-
-    git clone https://github.com/xyproto/kitchencalendar
-    cd kitchencalendar
-
-Building all calendars:
-
-    make
-
-This results in `kitchencalendar_us`, `kitchencalendar_no` etc.
-
 ### General info
 
-* Version: 0.2.0
+* Version: 1.0.0
 * License: BSD-3
 * Author: Alexander F. Rødseth &lt;xyproto@archlinux.org&gt;
