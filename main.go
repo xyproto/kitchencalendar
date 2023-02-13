@@ -177,6 +177,7 @@ func main() {
 	pdf.AddPage()
 
 	tempdir := env.Str("TMPDIR", "/tmp")
+
 	nunitoRegularFilename := filepath.Join(tempdir, "Nunito-Regular.ttf")
 	if !exists(nunitoRegularFilename) {
 		os.WriteFile(nunitoRegularFilename, nunitoRegularData, 0o664)
@@ -186,17 +187,18 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
+	defer os.Remove(nunitoRegularFilename)
 
 	nunitoBoldFilename := filepath.Join(tempdir, "Nunito-Bold.ttf")
 	if !exists(nunitoBoldFilename) {
 		os.WriteFile(nunitoBoldFilename, nunitoBoldData, 0o664)
 	}
-
 	if !exists(nunitoBoldFilename) {
 		err := fmt.Errorf("could not write to %s", nunitoBoldFilename)
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
+	defer os.Remove(nunitoRegularFilename)
 
 	if err := pdf.AddTTFFont("regular", nunitoRegularFilename); err != nil {
 		fmt.Fprintln(os.Stderr, err)
