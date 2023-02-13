@@ -8,9 +8,9 @@ Each year has 52 weeks. Each generated PDF document is a calendar for two specif
 
 The utility also takes a list of comma separated names that are used in the weekly overviews.
 
-This type of calendar can work great if for instance a family of 4, a couple of co-workers or people living together need to collaborate.
+This type of calendar can work great if for instance a family of 4, a couple of co-workers or people that are living together needs to collaborate.
 
-By printing out and hanging up the calendars on the kitchen cupboard doors, there are no excuses for not having a good overview of what is happening in the weeks ahead.
+By printing out and hanging up the calendars on the kitchen cupboard doors, there are no excuses for not having a good overview of what is happening in the weeks ahead, nor for what has been completed.
 
 I recommend printing out at least 6 pages, which covers 12 weeks, and hang them all up. It does occupy quite a bit of "visual space" in the kitchen, but it's immensely handy and practical.
 
