@@ -20,6 +20,8 @@ In addition to this, "red dates" (holidays / flag flying dates) are written in b
 
 Currently, only US and Norwegian calendars can be generated, but pull requests for supporting other locales are welcome!
 
+The line art images comes from the excellent [ln](https://github.com/fogleman/ln) package.
+
 ### Example US PDF
 
 ![US kitchen calendar](img/us_kitchen_calendar.png)
