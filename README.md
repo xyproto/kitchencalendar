@@ -1,4 +1,4 @@
-# Kitchen Calendar System
+# Kitchen Calendar
 
 ![Build](https://github.com/xyproto/kitchencalendar/workflows/Build/badge.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/xyproto/kitchencalendar)](https://goreportcard.com/report/github.com/xyproto/kitchencalendar) [![License](https://img.shields.io/badge/license-BSD-green.svg?style=flat)](https://raw.githubusercontent.com/xyproto/kitchencalendar/main/LICENSE)
 
@@ -22,13 +22,13 @@ Currently, only US and Norwegian calendars can be generated, but pull requests f
 
 The line art images comes from the excellent [ln](https://github.com/fogleman/ln) package.
 
-### Example US PDF
+### Example calendar (U.S.)
 
 ![US kitchen calendar](img/us_kitchen_calendar.png)
 
 Note that the 4th of July is in bold.
 
-### Example Norwegian PDF
+### Example calendar (Norwegian)
 
 ![Norwegian kitchen calendar](img/no_kitchen_calendar.png)
 
