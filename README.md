@@ -20,7 +20,7 @@ Currently, only US and Norwegian calendars can be generated, but pull requests f
 
 The line art images comes from the excellent [ln](https://github.com/fogleman/ln) package.
 
-### Example calendar (U.S.)
+### Example calendar (English, for the US)
 
 ![US kitchen calendar](img/us_kitchen_calendar.png)
 
