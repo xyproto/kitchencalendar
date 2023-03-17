@@ -4,11 +4,9 @@
 
 Kitchen Calendar is a utility written in Go that can generate PDF files.
 
-Each year has 52 weeks. Each generated PDF document is a calendar for two specific weeks, for example week 7 and 8.
+Each generated PDF document is a calendar for two specific weeks, for example week 7 and 8.
 
-The utility also takes a list of comma separated names that are used in the weekly overviews.
-
-This type of calendar can work great if for instance a family of 4, a couple of co-workers or people that are living together needs to collaborate.
+This type of calendar can work great if for instance a family of 4, a couple of co-workers or people that are living together and needs to find a good way to collaborate.
 
 **By printing out and hanging up the calendars on the kitchen cupboard doors, there are no excuses for not having a good overview of what is happening in the weeks ahead, nor for what has been done or completed.**
 
@@ -47,6 +45,8 @@ Install the Norwegian kitchen calendar generator:
     go install -tags nb_NO github.com/xyproto/kitchencalendar@latest
 
 ### Usage
+
+The utility takes a list of comma separated names that will be used in the weekly overviews.
 
 For creating a `calendar_w8_2023.pdf` file:
 
