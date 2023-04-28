@@ -6,7 +6,7 @@ Kitchen Calendar is a utility written in Go that can generate PDF files.
 
 Each generated PDF document is a calendar for two specific weeks, for example week 7 and 8.
 
-This type of calendar can work great for a family of 4, a couple of co-workers or people that live together and needs to find a good way to collaborate.
+This type of calendar can work great for a family of 4, a couple of co-workers or people that live together and need to find a good way to collaborate.
 
 **By printing out and hanging up the calendars on the kitchen cupboard doors, there are no excuses for not having a good overview of what is happening in the weeks ahead, nor for what has been done or completed.**
 
