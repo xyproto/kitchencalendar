@@ -1,4 +1,4 @@
-//go:build !nb_NO
+//go:build !nb_NO && !en_US
 
 package main
 
