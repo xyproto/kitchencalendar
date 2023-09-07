@@ -14,7 +14,7 @@ I recommend printing out at least 6 pages, which covers 12 weeks, and hang them 
 
 The reason why I wrote this utility is because we use it in my family, and it works better for us than Google Calendar or other apps or web pages. The information is readily available without anyone having to "do anything" to see it, and one can easily add entries while making tea or coffee.
 
-In addition to this, "red dates" (holidays / flag flying dates) are written in bold text in the calendar. The functionality for detecting "red days" comes from the [kal](https://github.com/xyproto/kal) package.
+In addition to this, "red dates" (holidays / flag flying dates) are written in bold text in the calendar. The functionality for detecting "red days" comes from the [kal](https://github.com/xyproto/kal) package (this feature needs more testing).
 
 Currently, only US and Norwegian calendars can be generated, but pull requests for supporting other locales are welcome!
 
