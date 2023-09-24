@@ -245,7 +245,7 @@ func main() {
 	}
 
 	if *verbose {
-		fmt.Printf("Writing to %s... ", filename)
+		fmt.Printf("Writing %s... ", filename)
 	}
 	pdf.WritePdf(filename)
 	if *verbose {
