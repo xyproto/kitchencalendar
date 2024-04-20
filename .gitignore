@@ -1,7 +1,10 @@
-kitchencalendar
-kitchencalendar_??
 *.bak
 *.o
+*.pdf
 *.swp
 *.tmp
-*.pdf
+cmd/kitchencalendar/kitchencalendar
+cmd/kitchencalendar/kitchencalendar_??
+include.txt
+kitchencalendar
+kitchencalendar_??

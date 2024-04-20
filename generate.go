@@ -1,10 +1,9 @@
-package main
+package kitchencalendar
 
 import (
 	_ "embed"
 	"path/filepath"
 
-	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -25,11 +24,11 @@ var nunitoBoldData []byte
 
 // generateTitle generates the main title of the calendar
 func generateTitle(cal kal.Calendar, year, week int) string {
-	mondayTime := firstMondayOfWeek(year, week)
-	monthName1 := getMonthName(cal, mondayTime)
+	mondayTime := FirstMondayOfWeek(year, week)
+	monthName1 := GetMonthName(cal, mondayTime)
 	week++
-	mondayTime = firstMondayOfWeek(year, week)
-	monthName2 := getMonthName(cal, mondayTime)
+	mondayTime = FirstMondayOfWeek(year, week)
+	monthName2 := GetMonthName(cal, mondayTime)
 	if monthName1 == monthName2 {
 		return fmt.Sprintf("%s %d", monthName1, year)
 	}
@@ -39,9 +38,9 @@ func generateTitle(cal kal.Calendar, year, week int) string {
 // generateWeekHeaderLeft creates the header for the right side of the week table
 // on the format: from date -> to date
 func generateWeekHeaderRight(cal kal.Calendar, year, week int) string {
-	mondayTime := firstMondayOfWeek(year, week)
-	sundayTime := firstSundayAfter(mondayTime)
-	return fmt.Sprintf("%s -> %s", formatDate(cal, mondayTime), formatDate(cal, sundayTime))
+	mondayTime := FirstMondayOfWeek(year, week)
+	sundayTime := FirstSundayAfter(mondayTime)
+	return fmt.Sprintf("%s -> %s", FormatDate(cal, mondayTime), FormatDate(cal, sundayTime))
 }
 
 func write(pdf *gopdf.GoPdf, x, y float64, text string, fontName string, fontSize int) error {
@@ -64,7 +63,7 @@ func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64,
 	pdf.Line(*x+width, *y+20, *x+width, *y+tableHeight+37.2)
 
 	// Generate the titles for this week
-	headerLeft := weekString(week)
+	headerLeft := WeekString(week)
 	headerRight := generateWeekHeaderRight(cal, year, week)
 
 	// Draw the header for the 1st week
@@ -81,16 +80,16 @@ func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64,
 	pdf.Line(*x-0.2, *y, *x+width+0.2, *y)
 
 	// Find monday and sunday
-	mondayTime := firstMondayOfWeek(year, week)
-	sundayTime := firstSundayAfter(mondayTime)
+	mondayTime := FirstMondayOfWeek(year, week)
+	sundayTime := FirstSundayAfter(mondayTime)
 
 	// Draw the week names and vertical lines for the 1st week
 	originalX := *x
 	*x += 70
 	cellWidth := width / 8.0
 	i := 1
-	err := iterateDays(mondayTime, sundayTime, func(t time.Time) error {
-		text := dayAndDate(cal, t)
+	err := IterateDays(mondayTime, sundayTime, func(t time.Time) error {
+		text := DayAndDate(cal, t)
 
 		fontName := "regular"
 		if isRedDay := kal.RedDay(cal, t); t.Weekday() == time.Sunday || isRedDay { // Red day
@@ -133,31 +132,10 @@ func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64,
 	return nil
 }
 
-func main() {
-	outputFilename := flag.String("o", "", "an output PDF filename")
-	yearFlag := flag.Int("year", getCurrentYear(), "the year")
-	weekFlag := flag.Int("week", getCurrentWeek(), "the week number")
-	nameString := flag.String("names", "Bob,Alice,Mallory,Judy", "names used in the calendar")
-	drawingFlag := flag.Bool("drawing", true, "include a drawing for each year and week in the top right corner")
-	verbose := flag.Bool("V", true, "verbose output")
-
-	flag.Parse()
-
-	year := *yearFlag
-	week := *weekFlag
-	names := strings.Split(*nameString, ",")
-
-	filename := ""
-	if *outputFilename == "" {
-		filename = fmt.Sprintf("calendar_w%d_%d.pdf", week, year)
-	} else {
-		filename = *outputFilename
-	}
-
-	cal, err := newCalendar()
+func GeneratePDF(year, week int, names []string, drawing bool) ([]byte, error) {
+	cal, err := NewCalendar()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
+		return []byte{}, err
 	}
 
 	// Got all needed information, generate and output the PDF
@@ -183,9 +161,7 @@ func main() {
 		os.WriteFile(nunitoRegularFilename, nunitoRegularData, 0o664)
 	}
 	if !exists(nunitoRegularFilename) {
-		err := fmt.Errorf("could not write to %s", nunitoRegularFilename)
-		fmt.Fprintln(os.Stderr, err)
-		return
+		return []byte{}, fmt.Errorf("could not write to %s", nunitoRegularFilename)
 	}
 	defer os.Remove(nunitoRegularFilename)
 
@@ -194,20 +170,16 @@ func main() {
 		os.WriteFile(nunitoBoldFilename, nunitoBoldData, 0o664)
 	}
 	if !exists(nunitoBoldFilename) {
-		err := fmt.Errorf("could not write to %s", nunitoBoldFilename)
-		fmt.Fprintln(os.Stderr, err)
-		return
+		return []byte{}, fmt.Errorf("could not write to %s", nunitoBoldFilename)
 	}
 	defer os.Remove(nunitoRegularFilename)
 
 	if err := pdf.AddTTFFont("regular", nunitoRegularFilename); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
+		return []byte{}, err
 	}
 
 	if err := pdf.AddTTFFont("bold", nunitoBoldFilename); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
+		return []byte{}, err
 	}
 
 	y := 35.0
@@ -217,12 +189,11 @@ func main() {
 	// Draw the month and year title
 	title := generateTitle(cal, year, week)
 	if err := write(&pdf, x, y, title, "bold", 24); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
+		return []byte{}, err
 	}
 
-	if *drawingFlag {
-		drawLineImage(&pdf, year, week, width-40, y-10, 70, 70)
+	if drawing {
+		DrawLineImage(&pdf, year, week, width-40, y-10, 70, 70)
 	}
 
 	// Set the line width for the weeks and tables
@@ -231,8 +202,7 @@ func main() {
 	// Draw the first week
 	y += 75
 	if err := drawWeek(&pdf, cal, year, week, &x, &y, width, names); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
+		return []byte{}, err
 	}
 
 	week++
@@ -240,16 +210,8 @@ func main() {
 	// Draw the second week
 	y += 20
 	if err := drawWeek(&pdf, cal, year, week, &x, &y, width, names); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
+		return []byte{}, err
 	}
 
-	if *verbose {
-		fmt.Printf("Writing %s... ", filename)
-	}
-	pdf.WritePdf(filename)
-	if *verbose {
-		fmt.Println("done")
-	}
-
+	return pdf.GetBytesPdf(), nil
 }

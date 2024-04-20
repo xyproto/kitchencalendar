@@ -1,4 +1,4 @@
-package main
+package kitchencalendar
 
 import (
 	"strings"
@@ -7,8 +7,8 @@ import (
 	"github.com/xyproto/kal"
 )
 
-// firstMondayOfWeek finds the first monday of the week, given a year and a week number
-func firstMondayOfWeek(year, week int) time.Time {
+// FirstMondayOfWeek finds the first monday of the week, given a year and a week number
+func FirstMondayOfWeek(year, week int) time.Time {
 	// Create a time object for the given year
 	t := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
 	// Calculate the number of days to add to the time object
@@ -23,8 +23,8 @@ func firstMondayOfWeek(year, week int) time.Time {
 	return t
 }
 
-// firstSundayOfWeek finds the first monday of the week, given a year and a week number
-func firstSundayOfWeek(year, week int) time.Time {
+// FirstSundayOfWeek finds the first monday of the week, given a year and a week number
+func FirstSundayOfWeek(year, week int) time.Time {
 	// Create a time object for the given year
 	t := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
 	// Calculate the number of days to add to the time object
@@ -39,8 +39,8 @@ func firstSundayOfWeek(year, week int) time.Time {
 	return t
 }
 
-// firstSundayAfter finds the first Sunday after the given date
-func firstSundayAfter(date time.Time) time.Time {
+// FirstSundayAfter finds the first Sunday after the given date
+func FirstSundayAfter(date time.Time) time.Time {
 	// Get the day of the week for the given date
 	dayOfWeek := date.Weekday()
 	// Calculate the number of days to add to the given date to get the first Sunday
@@ -50,7 +50,7 @@ func firstSundayAfter(date time.Time) time.Time {
 }
 
 // FirstSaturdayAfter takes a time.Time and returns the first Saturday after the given date as a time.Time
-func firstSaturdayAfter(date time.Time) time.Time {
+func FirstSaturdayAfter(date time.Time) time.Time {
 	// Get the day of the week for the given date
 	dayOfWeek := date.Weekday()
 	// Calculate the number of days until the next Saturday
@@ -59,8 +59,8 @@ func firstSaturdayAfter(date time.Time) time.Time {
 	return date.AddDate(0, 0, daysToAdd)
 }
 
-// iterateDays iterates over days from startDay to endDay (inclusive) and calls f for each day
-func iterateDays(startDay, endDay time.Time, f func(time.Time) error) error {
+// IterateDays iterates over days from startDay to endDay (inclusive) and calls f for each day
+func IterateDays(startDay, endDay time.Time, f func(time.Time) error) error {
 	// Create a new time.Time object representing the start of the startDay
 	start := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, startDay.Location())
 	// Create a new time.Time object representing the start of the endDay
@@ -76,12 +76,12 @@ func iterateDays(startDay, endDay time.Time, f func(time.Time) error) error {
 }
 
 // GetCurrentYear returns the current year as an int
-func getCurrentYear() int {
+func GetCurrentYear() int {
 	return time.Now().Year()
 }
 
-// getCurrentWeek returns the current week number as an int
-func getCurrentWeek() int {
+// GetCurrentWeek returns the current week number as an int
+func GetCurrentWeek() int {
 	// Get the current time
 	now := time.Now()
 	// Get the ISO year and week number
@@ -90,18 +90,18 @@ func getCurrentWeek() int {
 	return week
 }
 
-// getMonthName takes a time.Time and returns the name of the month in the current locale
-func getMonthName(cal kal.Calendar, t time.Time) string {
+// GetMonthName takes a time.Time and returns the name of the month in the current locale
+func GetMonthName(cal kal.Calendar, t time.Time) string {
 	return capitalize(cal.MonthName(t.Month()))
 }
 
-// getMonthAbbrev takes a time.Month and returns the abbreviation in the current locale
-func getMonthAbbrev(cal kal.Calendar, month time.Month) string {
+// GetMonthAbbrev takes a time.Month and returns the abbreviation in the current locale
+func GetMonthAbbrev(cal kal.Calendar, month time.Month) string {
 	return strings.ToLower(cal.MonthName(month)[:3])
 }
 
-// monthNumber returns the month number given a year int and a week int.
-func monthNumber(year, week int) int {
+// MonthNumber returns the month number given a year int and a week int.
+func MonthNumber(year, week int) int {
 	// Get the first day of the year
 	firstDay := time.Date(year, time.January, 1, 0, 0, 0, 0, time.UTC)
 	// Get the first day of the week

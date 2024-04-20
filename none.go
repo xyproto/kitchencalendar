@@ -1,6 +1,6 @@
 //go:build !nb_NO && !en_US
 
-package main
+package kitchencalendar
 
 import (
 	"errors"
@@ -11,7 +11,7 @@ import (
 
 const msg = "select a locale when building, for example: go build -tags nb_NO"
 
-func formatDate(cal kal.Calendar, date time.Time) string { return msg }
-func weekString(week int) string                         { return msg }
-func dayAndDate(cal kal.Calendar, t time.Time) string    { return msg }
-func newCalendar() (kal.Calendar, error)                 { return nil, errors.New(msg) }
+func FormatDate(cal kal.Calendar, date time.Time) string { return msg }
+func WeekString(week int) string                         { return msg }
+func DayAndDate(cal kal.Calendar, t time.Time) string    { return msg }
+func NewCalendar() (kal.Calendar, error)                 { return nil, errors.New(msg) }

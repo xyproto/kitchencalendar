@@ -1,4 +1,4 @@
-package main
+package kitchencalendar
 
 import (
 	"math/rand"
@@ -7,10 +7,10 @@ import (
 	"github.com/signintech/gopdf"
 )
 
-// drawLineImage draws an image into the PDF, using only lines
-func drawLineImage(pdf *gopdf.GoPdf, year, week int, x, y, width, height float64) error {
+// DrawLineImage draws an image into the PDF, using only lines
+func DrawLineImage(pdf *gopdf.GoPdf, year, week int, x, y, width, height float64) error {
 	var (
-		month = monthNumber(year, week)
+		month = MonthNumber(year, week)
 		paths ln.Paths
 		scene = ln.Scene{}
 	)
