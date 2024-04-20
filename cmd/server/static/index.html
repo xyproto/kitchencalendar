@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitchen Calendar Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="form-container">
+        <h1>Create Your Kitchen Calendar</h1>
+        <form id="calendarForm">
+            <div class="input-group">
+                <label for="fromDate">From Date (optional):</label>
+                <input type="date" id="fromDate" name="fromDate">
+            </div>
+            <div class="input-group">
+                <label for="toDate">To Date (required):</label>
+                <input type="date" id="toDate" name="toDate" required>
+            </div>
+            <div class="input-group">
+                <label for="drawing">Include Drawing:</label>
+                <input type="checkbox" id="drawing" name="drawing" checked>
+            </div>
+            <div class="input-group">
+                <label for="names">Names (required):</label>
+                <input type="text" id="names" name="names" required placeholder="Enter names separated by commas" value="Aria, Alexander, Synne, Vilde">
+            </div>
+            <button type="submit" id="generatePdfBtn">Generate PDF</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('calendarForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = {
+                fromDate: document.getElementById('fromDate').value || new Date().toISOString().split('T')[0],
+                toDate: document.getElementById('toDate').value,
+                drawing: document.getElementById('drawing').checked,
+                names: document.getElementById('names').value.split(',').map(name => name.trim())
+            };
+
+            fetch('/createcalendar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Server responded with an error.');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "calendars.zip";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to generate calendar.');
+            });
+        });
+    </script>
+</body>
+</html>
