@@ -5,6 +5,7 @@
 *.tmp
 cmd/kitchencalendar/kitchencalendar
 cmd/kitchencalendar/kitchencalendar_??
+cmd/server/server
 include.txt
 kitchencalendar
 kitchencalendar_??
