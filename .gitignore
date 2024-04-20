@@ -6,6 +6,7 @@
 cmd/kitchencalendar/kitchencalendar
 cmd/kitchencalendar/kitchencalendar_??
 cmd/server/server
+docker.sh
 include.txt
 kitchencalendar
 kitchencalendar_??
