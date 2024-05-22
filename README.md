@@ -58,6 +58,6 @@ For generating calendars for week 7 to 17 (with 2 weeks on each PDF), for this y
 
 ### General info
 
-* Version: 1.0.3
+* Version: 1.0.4
 * License: BSD-3
 * Author: Alexander F. Rødseth
