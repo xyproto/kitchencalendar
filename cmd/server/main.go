@@ -1,3 +1,5 @@
+//go:build nb_NO || en_US
+
 package main
 
 import (
