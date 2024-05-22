@@ -24,7 +24,7 @@ github.com/xyproto/env/v2
 # github.com/xyproto/kal v1.3.0
 ## explicit; go 1.4
 github.com/xyproto/kal
-# golang.org/x/image v0.15.0
+# golang.org/x/image v0.16.0
 ## explicit; go 1.18
 golang.org/x/image/draw
 golang.org/x/image/font
