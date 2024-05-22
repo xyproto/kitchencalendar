@@ -24,12 +24,67 @@ type CalendarRequest struct {
 	WeeksSpan int      `json:"weeksSpan"` // 1 or 2 weeks per PDF
 }
 
+const (
+	daysPerWeek      = 7
+	defaultWeeksSpan = 2
+)
+
 var verboseLogging = env.Bool("VERBOSE")
 
 func logVerbose(message string) {
 	if verboseLogging {
 		fmt.Println(message)
 	}
+}
+
+func generateCalendars(req CalendarRequest, fromDate, toDate time.Time) ([]byte, error) {
+	if req.WeeksSpan <= 0 {
+		req.WeeksSpan = defaultWeeksSpan // Default to defaultWeeksSpan if WeeksSpan is not specified or invalid
+	}
+
+	buffer := new(bytes.Buffer)
+	zipWriter := zip.NewWriter(buffer)
+
+	start := fromDate
+	for firstIteration := true; firstIteration || start.Before(toDate); firstIteration = false {
+		expectedStart := start
+		end := start.AddDate(0, 0, daysPerWeek*req.WeeksSpan-1)
+		if end.After(toDate) {
+			end = toDate
+		}
+
+		year, week := start.ISOWeek()
+		logVerbose(fmt.Sprintf("Generating PDF for weeks %d-%d of year %d", week, week+req.WeeksSpan-1, year))
+
+		pdfBytes, err := kc.GeneratePDF(year, week, req.Names, req.Drawing)
+		if err != nil {
+			return nil, fmt.Errorf("failed to generate PDF: %v", err)
+		}
+
+		fileName := fmt.Sprintf("calendar_%d-%d.pdf", year, week)
+		fw, err := zipWriter.Create(fileName)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create zip entry: %v", err)
+		}
+		if _, err := fw.Write(pdfBytes); err != nil {
+			return nil, fmt.Errorf("failed to write to zip: %v", err)
+		}
+
+		// Move to the next set of weeks, avoiding overlap
+		start = start.AddDate(0, 0, daysPerWeek*req.WeeksSpan)
+
+		// Check if the iteration is progressing as expected
+		if start.Before(expectedStart.AddDate(0, 0, daysPerWeek*req.WeeksSpan)) {
+			fmt.Fprintf(os.Stderr, "Warning: Iteration did not progress as expected. Current start: %v, Expected start: %v\n", start, expectedStart.AddDate(0, 0, daysPerWeek*req.WeeksSpan))
+		}
+	}
+
+	if err := zipWriter.Close(); err != nil {
+		return nil, fmt.Errorf("failed to close zip writer: %v", err)
+	}
+
+	logVerbose("PDF generation and zipping completed successfully")
+	return buffer.Bytes(), nil
 }
 
 func handleCreateCalendar(w http.ResponseWriter, r *http.Request) {
@@ -63,60 +118,17 @@ func handleCreateCalendar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.WeeksSpan <= 0 {
-		req.WeeksSpan = 1 // Default to 1 week if WeeksSpan is not specified or invalid
-	}
-
-	buffer := new(bytes.Buffer)
-	zipWriter := zip.NewWriter(buffer)
-
-	start := fromDate
-	for firstIteration := true; firstIteration || start.Before(toDate); firstIteration = false {
-		end := start.AddDate(0, 0, 7*req.WeeksSpan-1)
-		if end.After(toDate) {
-			end = toDate
-		}
-
-		year, week := start.ISOWeek()
-		logVerbose(fmt.Sprintf("Generating PDF for week %d of year %d", week, year))
-
-		pdfBytes, err := kc.GeneratePDF(year, week, req.Names, req.Drawing)
-		if err != nil {
-			http.Error(w, "Failed to generate PDF", http.StatusInternalServerError)
-			logVerbose(fmt.Sprintf("Error generating PDF: %v", err))
-			return
-		}
-
-		fileName := fmt.Sprintf("calendar_%d-%d.pdf", year, week)
-		fw, err := zipWriter.Create(fileName)
-		if err != nil {
-			http.Error(w, "Failed to create zip entry", http.StatusInternalServerError)
-			logVerbose(fmt.Sprintf("Error creating zip entry: %v", err))
-			return
-		}
-		_, err = fw.Write(pdfBytes)
-		if err != nil {
-			http.Error(w, "Failed to write to zip", http.StatusInternalServerError)
-			logVerbose(fmt.Sprintf("Error writing to zip: %v", err))
-			return
-		}
-
-		// Skip a week, since each PDF has two weeks when iterating
-		start = end.AddDate(0, 0, 7)
-	}
-
-	if err := zipWriter.Close(); err != nil {
-		http.Error(w, "Failed to close zip writer", http.StatusInternalServerError)
-		logVerbose(fmt.Sprintf("Error closing zip writer: %v", err))
+	zipData, err := generateCalendars(req, fromDate, toDate)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logVerbose(fmt.Sprintf("Error generating calendars: %v", err))
 		return
 	}
 
-	logVerbose("PDF generation and zipping completed successfully")
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", "attachment; filename=calendars.zip")
-	if _, err := io.Copy(w, buffer); err != nil {
+	if _, err := io.Copy(w, bytes.NewReader(zipData)); err != nil {
 		logVerbose(fmt.Sprintf("Error sending zip file: %v", err))
-		return
 	}
 }
 
