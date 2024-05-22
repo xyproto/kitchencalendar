@@ -99,8 +99,8 @@ func handleCreateCalendar(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Prepare for the next iteration
-		start = end.AddDate(0, 0, 1)
+		// Skip a week, since each PDF has two weeks when iterating
+		start = end.AddDate(0, 0, 7)
 	}
 
 	if err := zipWriter.Close(); err != nil {
