@@ -2,6 +2,7 @@ package kitchencalendar
 
 import (
 	_ "embed"
+	"errors"
 	"path/filepath"
 
 	"fmt"
@@ -114,6 +115,10 @@ func drawWeek(pdf *gopdf.GoPdf, cal kal.Calendar, year, week int, x, y *float64,
 	*y += 15
 	pdf.Line(*x, *y, *x+width, *y)
 
+	if len(names) == 0 {
+		return errors.New("the given slice of names is empty")
+	}
+
 	nameHeight := tableHeight / float64(len(names))
 
 	// Draw the names of the people that should use this calendar, with horizontal lines
@@ -158,7 +163,9 @@ func GeneratePDF(year, week int, names []string, drawing bool) ([]byte, error) {
 
 	nunitoRegularFilename := filepath.Join(tempdir, "Nunito-Regular.ttf")
 	if !exists(nunitoRegularFilename) {
-		os.WriteFile(nunitoRegularFilename, nunitoRegularData, 0o664)
+		if err := os.WriteFile(nunitoRegularFilename, nunitoRegularData, 0o664); err != nil {
+			return []byte{}, fmt.Errorf("could not write to %s: %w", nunitoRegularFilename, err)
+		}
 	}
 	if !exists(nunitoRegularFilename) {
 		return []byte{}, fmt.Errorf("could not write to %s", nunitoRegularFilename)
@@ -167,12 +174,14 @@ func GeneratePDF(year, week int, names []string, drawing bool) ([]byte, error) {
 
 	nunitoBoldFilename := filepath.Join(tempdir, "Nunito-Bold.ttf")
 	if !exists(nunitoBoldFilename) {
-		os.WriteFile(nunitoBoldFilename, nunitoBoldData, 0o664)
+		if err := os.WriteFile(nunitoBoldFilename, nunitoBoldData, 0o664); err != nil {
+			return []byte{}, fmt.Errorf("could not write to %s: %w", nunitoBoldFilename, err)
+		}
 	}
 	if !exists(nunitoBoldFilename) {
 		return []byte{}, fmt.Errorf("could not write to %s", nunitoBoldFilename)
 	}
-	defer os.Remove(nunitoRegularFilename)
+	defer os.Remove(nunitoBoldFilename)
 
 	if err := pdf.AddTTFFont("regular", nunitoRegularFilename); err != nil {
 		return []byte{}, err
