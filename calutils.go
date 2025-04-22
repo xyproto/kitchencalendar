@@ -8,35 +8,28 @@ import (
 )
 
 // FirstMondayOfWeek finds the first monday of the week, given a year and a week number
+// based on ISO 8601 standard
 func FirstMondayOfWeek(year, week int) time.Time {
-	// Create a time object for the given year
-	t := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
-	// Calculate the number of days to add to the time object
-	// to get the first Monday of the given week number
-	daysToAdd := (week - 1) * 7
-	t = t.AddDate(0, 0, daysToAdd)
-	// If the day of the week is not Monday,
-	// add the number of days to get to the next Monday
-	for t.Weekday() != time.Monday {
-		t = t.AddDate(0, 0, 1)
+	// The ISO 8601 definition: week 1 is the week with the first Thursday of the year
+	// This means week 1 contains January 4
+	jan4 := time.Date(year, 1, 4, 0, 0, 0, 0, time.UTC)
+	// Find the Monday of the week containing Jan 4
+	firstWeekMonday := jan4
+	for firstWeekMonday.Weekday() != time.Monday {
+		firstWeekMonday = firstWeekMonday.AddDate(0, 0, -1)
 	}
-	return t
+	// Now we can calculate the Monday of the specified week
+	weekOffset := (week - 1) * 7
+	return firstWeekMonday.AddDate(0, 0, weekOffset) // monday
 }
 
-// FirstSundayOfWeek finds the first monday of the week, given a year and a week number
+// FirstSundayOfWeek finds the first Sunday of the week, given a year and a week number
+// based on ISO 8601 standard
 func FirstSundayOfWeek(year, week int) time.Time {
-	// Create a time object for the given year
-	t := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
-	// Calculate the number of days to add to the time object
-	// to get the first Monday of the given week number
-	daysToAdd := (week - 1) * 7
-	t = t.AddDate(0, 0, daysToAdd)
-	// If the day of the week is not Sunday,
-	// add the number of days to get to the next Sunday
-	for t.Weekday() != time.Sunday {
-		t = t.AddDate(0, 0, 1)
-	}
-	return t
+	// Get the Monday of the specified week
+	monday := FirstMondayOfWeek(year, week)
+	// Go forward 6 days to get to the Sunday of that week
+	return monday.AddDate(0, 0, 6) // sunday
 }
 
 // FirstSundayAfter finds the first Sunday after the given date
@@ -85,9 +78,34 @@ func GetCurrentWeek() int {
 	// Get the current time
 	now := time.Now()
 	// Get the ISO year and week number
-	_, week := now.ISOWeek()
+	currentYear, week := now.ISOWeek()
+	// Make sure we're using weeks for the current year, not next year's week 1
+	if currentYear != now.Year() {
+		// If the ISO year doesn't match the calendar year, we need to adjust
+		return GetWeekForDate(now)
+	}
 	// Return the week number
 	return week
+}
+
+// GetWeekForDate returns the week number for a given date, ensuring it's
+// attributed to the correct year (not the ISO year which might be different)
+func GetWeekForDate(date time.Time) int {
+	year := date.Year()
+	isoYear, isoWeek := date.ISOWeek()
+	// If we're in December but the ISO week belongs to next year, use the last week of this year
+	if date.Month() == time.December && isoYear > year {
+		// Get the last day of the year
+		lastDay := time.Date(year, 12, 31, 0, 0, 0, 0, date.Location())
+		// Get the week of the last day
+		_, lastWeek := lastDay.ISOWeek()
+		return lastWeek
+	}
+	// If we're in January but the ISO week belongs to previous year, use week 1
+	if date.Month() == time.January && isoYear < year {
+		return 1
+	}
+	return isoWeek
 }
 
 // GetMonthName takes a time.Time and returns the name of the month in the current locale
@@ -102,10 +120,8 @@ func GetMonthAbbrev(cal kal.Calendar, month time.Month) string {
 
 // MonthNumber returns the month number given a year int and a week int.
 func MonthNumber(year, week int) int {
-	// Get the first day of the year
-	firstDay := time.Date(year, time.January, 1, 0, 0, 0, 0, time.UTC)
-	// Get the first day of the week
-	firstWeekDay := firstDay.AddDate(0, 0, (week-1)*7)
+	// Get the first Monday of the specified week
+	mondayOfWeek := FirstMondayOfWeek(year, week)
 	// Return the month number
-	return int(firstWeekDay.Month())
+	return int(mondayOfWeek.Month())
 }

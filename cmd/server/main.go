@@ -53,7 +53,8 @@ func generateCalendars(req CalendarRequest, fromDate, toDate time.Time) ([]byte,
 			end = toDate
 		}
 
-		year, week := start.ISOWeek()
+		year := start.Year()
+		week := kc.GetWeekForDate(start)
 		logVerbose(fmt.Sprintf("Generating PDF for weeks %d-%d of year %d", week, week+req.WeeksSpan-1, year))
 
 		pdfBytes, err := kc.GeneratePDF(year, week, req.Names, req.Drawing)
