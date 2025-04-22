@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"compress/zlib" // for constants
+	"errors"
 	"fmt"
 	"image"
 	"image/jpeg"
@@ -16,12 +17,12 @@ import (
 	"strings"
 	"time"
 
-	"errors"
-
 	"github.com/phpdave11/gofpdi"
 )
 
 const subsetFont = "SubsetFont"
+
+const colorSpace = "ColorSpace"
 
 // the default margin if no margins are set
 const defaultMargin = 10.0 //for backward compatible
@@ -29,6 +30,10 @@ const defaultMargin = 10.0 //for backward compatible
 var ErrEmptyString = errors.New("empty string")
 
 var ErrMissingFontFamily = errors.New("font family not found")
+
+var ErrMissingColorSpace = errors.New("color space not found")
+
+var ErrExistsColorSpace = errors.New("color space already exists")
 
 var ErrUndefinedCacheContentImage = errors.New("cacheContentImage is undefined")
 
@@ -1264,6 +1269,10 @@ func (gp *GoPdf) IsFitMultiCellWithNewline(rectangle *Rect, text string) (bool, 
 
 // MultiCellWithOption create of text with line breaks ( use current x,y is upper-left corner of cell)
 func (gp *GoPdf) MultiCellWithOption(rectangle *Rect, text string, opt CellOption) error {
+	if opt.BreakOption == nil {
+		opt.BreakOption = &DefaultBreakOption
+	}
+
 	transparency, err := gp.getCachedTransparency(opt.Transparency)
 	if err != nil {
 		return err
@@ -1273,45 +1282,39 @@ func (gp *GoPdf) MultiCellWithOption(rectangle *Rect, text string, opt CellOptio
 		opt.extGStateIndexes = append(opt.extGStateIndexes, transparency.extGStateIndex)
 	}
 
-	var line []rune
 	x := gp.GetX()
-	var totalLineHeight float64
-	length := len([]rune(text))
 
 	// get lineHeight
-	text, err = gp.curr.FontISubset.AddChars(text)
+	itext, err := gp.curr.FontISubset.AddChars(text)
 	if err != nil {
 		return err
 	}
-	_, lineHeight, _, err := createContent(gp.curr.FontISubset, text, gp.curr.FontSize, gp.curr.CharSpacing, nil)
+	_, lineHeight, _, err := createContent(gp.curr.FontISubset, itext, gp.curr.FontSize, gp.curr.CharSpacing, nil)
 	if err != nil {
 		return err
 	}
 	gp.PointsToUnitsVar(&lineHeight)
 
-	for i, v := range []rune(text) {
-		if totalLineHeight+lineHeight > rectangle.H {
-			break
-		}
-		lineWidth, _ := gp.MeasureTextWidth(string(line))
-		runeWidth, _ := gp.MeasureTextWidth(string(v))
-
-		if lineWidth+runeWidth > rectangle.W {
-			gp.CellWithOption(&Rect{W: rectangle.W, H: lineHeight}, string(line), opt)
-			gp.Br(lineHeight)
-			gp.SetX(x)
-			totalLineHeight = totalLineHeight + lineHeight
-			line = nil
-		}
-
-		line = append(line, v)
-
-		if i == length-1 {
-			gp.CellWithOption(&Rect{W: rectangle.W, H: lineHeight}, string(line), opt)
-			gp.Br(lineHeight)
-			gp.SetX(x)
-		}
+	textSplits, err := gp.SplitTextWithOption(text, rectangle.W, opt.BreakOption)
+	if err != nil {
+		return err
 	}
+
+	startHeight := rectangle.H
+	if l := len(textSplits); l > 1 {
+		shiftLines := l / 2
+		if l%2 != 0 {
+			shiftLines += 1
+		}
+		startHeight = rectangle.H - (lineHeight+1.5)*float64(shiftLines)
+	}
+
+	for _, text := range textSplits {
+		gp.CellWithOption(&Rect{W: rectangle.W, H: startHeight}, string(text), opt)
+		gp.Br(lineHeight)
+		gp.SetX(x)
+	}
+
 	return nil
 }
 
@@ -1578,12 +1581,95 @@ func (gp *GoPdf) ImportPageStream(sourceStream *io.ReadSeeker, pageno int, box s
 	return tpl
 }
 
+// GetStreamPageSizes gets the sizes of the pages using a stream
+// Returns a map of available pages and its box sizes starting with the first page at index 1 containing a map of boxes containing a map of size values
+func (gp *GoPdf) GetStreamPageSizes(sourceStream *io.ReadSeeker) map[int]map[string]map[string]float64 {
+	gp.fpdi.SetSourceStream(sourceStream)
+	return gp.fpdi.GetPageSizes()
+}
+
+// GetPageSizes gets the sizes of the pages of a pdf file1
+// Returns a map of available pages and its box sizes starting with the first page at index 1 containing a map of boxes containing a map of size values
+func (gp *GoPdf) GetPageSizes(sourceFile string) map[int]map[string]map[string]float64 {
+	gp.fpdi.SetSourceFile(sourceFile)
+	return gp.fpdi.GetPageSizes()
+}
+
 // UseImportedTemplate draws an imported PDF page.
 func (gp *GoPdf) UseImportedTemplate(tplid int, x float64, y float64, w float64, h float64) {
 	gp.UnitsToPointsVar(&x, &y, &w, &h)
 	// Get template values to draw
 	tplName, scaleX, scaleY, tX, tY := gp.fpdi.UseTemplate(tplid, x, y, w, h)
 	gp.getContent().AppendStreamImportedTemplate(tplName, scaleX, scaleY, tX, tY)
+}
+
+// ImportPagesFromSource imports pages from a source pdf.
+// The source can be a file path, byte slice, or (*)io.ReadSeeker.
+func (gp *GoPdf) ImportPagesFromSource(source interface{}, box string) error {
+	switch v := source.(type) {
+	case string:
+		// Set source file for fpdi
+		gp.fpdi.SetSourceFile(v)
+	case []byte:
+		// Set source stream for fpdi
+		rs := io.ReadSeeker(bytes.NewReader(v))
+		gp.fpdi.SetSourceStream(&rs)
+	case io.ReadSeeker:
+		// Set source stream for fpdi
+		gp.fpdi.SetSourceStream(&v)
+	case *io.ReadSeeker:
+		// Set source stream for fpdi
+		gp.fpdi.SetSourceStream(v)
+	default:
+		return errors.New("source type not supported")
+	}
+
+	// Get number of pages from source file
+	pages := gp.fpdi.GetNumPages()
+
+	// Get page sizes from source file
+	sizes := gp.fpdi.GetPageSizes()
+
+	for i := 0; i < pages; i++ {
+		pageno := i + 1
+
+		// Get the size of the page
+		size, ok := sizes[pageno][box]
+		if !ok {
+			return errors.New("can not get page size")
+		}
+
+		// Add a new page to the document
+		gp.AddPage()
+
+		// gofpdi needs to know where to start the object id at.
+		// By default, it starts at 1, but gopdf adds a few objects initially.
+		startObjID := gp.GetNextObjectID()
+
+		// Set gofpdi next object ID to  whatever the value of startObjID is
+		gp.fpdi.SetNextObjectID(startObjID)
+
+		// Import page
+		tpl := gp.fpdi.ImportPage(pageno, box)
+
+		// Import objects into current pdf document
+		tplObjIDs := gp.fpdi.PutFormXobjects()
+
+		// Set template names and ids in gopdf
+		gp.ImportTemplates(tplObjIDs)
+
+		// Get a map[int]string of the imported objects.
+		// The map keys will be the ID of each object.
+		imported := gp.fpdi.GetImportedObjects()
+
+		// Import gofpdi objects into gopdf, starting at whatever the value of startObjID is
+		gp.ImportObjects(imported, startObjID)
+
+		// Draws the imported template on the current page
+		gp.UseImportedTemplate(tpl, 0, 0, size["w"], size["h"])
+	}
+
+	return nil
 }
 
 // GetNextObjectID gets the next object ID so that gofpdi knows where to start the object IDs.
@@ -1616,15 +1702,25 @@ func (gp *GoPdf) ImportTemplates(tpls map[string]int) {
 // AddExternalLink adds a new external link.
 func (gp *GoPdf) AddExternalLink(url string, x, y, w, h float64) {
 	gp.UnitsToPointsVar(&x, &y, &w, &h)
-	page := gp.pdfObjs[gp.curr.IndexOfPageObj].(*PageObj)
-	page.Links = append(page.Links, linkOption{x, gp.config.PageSize.H - y, w, h, url, ""})
+
+	linkOpt := linkOption{x, gp.config.PageSize.H - y, w, h, url, ""}
+	gp.addLink(linkOpt)
 }
 
 // AddInternalLink adds a new internal link.
 func (gp *GoPdf) AddInternalLink(anchor string, x, y, w, h float64) {
 	gp.UnitsToPointsVar(&x, &y, &w, &h)
+
+	linkOpt := linkOption{x, gp.config.PageSize.H - y, w, h, "", anchor}
+	gp.addLink(linkOpt)
+}
+
+func (gp *GoPdf) addLink(option linkOption) {
 	page := gp.pdfObjs[gp.curr.IndexOfPageObj].(*PageObj)
-	page.Links = append(page.Links, linkOption{x, gp.config.PageSize.H - y, w, h, "", anchor})
+	linkObj := gp.addObj(annotObj{option, func() *GoPdf {
+		return gp
+	}})
+	page.LinkObjIds = append(page.LinkObjIds, linkObj+1)
 }
 
 // SetAnchor creates a new anchor.
@@ -2217,7 +2313,7 @@ func (gp *GoPdf) writeInfo(w io.Writer) {
 	}
 
 	if !zerotime.Equal(gp.info.CreationDate) {
-		fmt.Fprintf(w, "/CreationDate(D:%s)>>\n", infodate(gp.info.CreationDate))
+		fmt.Fprintf(w, "/CreationDate(D:%s)\n", infodate(gp.info.CreationDate))
 	}
 
 	io.WriteString(w, " >>\n")
@@ -2352,6 +2448,88 @@ func (gp *GoPdf) IsCurrFontContainGlyph(r rune) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// SetPage set current page
+func (gp *GoPdf) SetPage(pageno int) error {
+	var pageIndex int
+	for i := 0; i < len(gp.pdfObjs); i++ {
+		switch gp.pdfObjs[i].(type) {
+		case *ContentObj:
+			pageIndex += 1
+			if pageIndex == pageno {
+				gp.indexOfContent = i
+				return nil
+			}
+		}
+	}
+
+	return errors.New("invalid page number")
+}
+
+func (gp *GoPdf) SetColorSpace(name string) error {
+	found := false
+	i := 0
+	max := len(gp.pdfObjs)
+	for i < max {
+		if gp.pdfObjs[i].getType() == colorSpace {
+			obj := gp.pdfObjs[i]
+			sub, ok := obj.(*ColorSpaceObj)
+			if ok {
+				if sub.Name == name {
+					gp.curr.IndexOfColorSpaceObj = i
+					gp.getContent().appendColorSpace(sub.CountOfSpaceColor)
+					found = true
+					break
+				}
+			}
+		}
+		i++
+	}
+
+	if !found {
+		return ErrMissingColorSpace
+	}
+
+	return nil
+}
+
+func (gp *GoPdf) AddColorSpaceRGB(name string, r, g, b uint8) error {
+	colorSpace := ColorSpaceObj{}
+	colorSpace.Name = name
+
+	colorSpace.SetColorRBG(r, g, b)
+
+	return gp.addColorSpace(&colorSpace)
+}
+
+func (gp *GoPdf) AddColorSpaceCMYK(name string, c, m, y, k uint8) error {
+	colorSpace := ColorSpaceObj{}
+	colorSpace.Name = name
+
+	colorSpace.SetColorCMYK(c, m, y, k)
+
+	return gp.addColorSpace(&colorSpace)
+}
+
+func (gp *GoPdf) addColorSpace(colorSpace *ColorSpaceObj) error {
+	index := gp.addObj(colorSpace)
+
+	if gp.indexOfProcSet != -1 {
+		procset := gp.pdfObjs[gp.indexOfProcSet].(*ProcSetObj)
+
+		for _, relate := range procset.RelateColorSpaces {
+			if relate.Name == colorSpace.Name {
+				return ErrExistsColorSpace
+			}
+		}
+
+		procset.RelateColorSpaces = append(procset.RelateColorSpaces, RelateColorSpace{Name: colorSpace.Name, IndexOfObj: index, CountOfColorSpace: gp.curr.CountOfColorSpace})
+		colorSpace.CountOfSpaceColor = gp.curr.CountOfColorSpace
+		gp.curr.CountOfColorSpace++
+	}
+
+	return nil
 }
 
 //tool for validate pdf https://www.pdf-online.com/osa/validate.aspx
