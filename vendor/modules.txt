@@ -8,7 +8,7 @@ github.com/fogleman/ln/ln
 ## explicit
 github.com/golang/freetype/raster
 github.com/golang/freetype/truetype
-# github.com/phpdave11/gofpdi v1.0.14
+# github.com/phpdave11/gofpdi v1.0.15
 ## explicit; go 1.12
 github.com/phpdave11/gofpdi
 # github.com/pkg/errors v0.9.1
@@ -24,7 +24,7 @@ github.com/xyproto/env/v2
 # github.com/xyproto/kal v1.3.0
 ## explicit; go 1.4
 github.com/xyproto/kal
-# golang.org/x/image v0.26.0
+# golang.org/x/image v0.27.0
 ## explicit; go 1.23.0
 golang.org/x/image/draw
 golang.org/x/image/font
