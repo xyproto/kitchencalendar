@@ -56,6 +56,8 @@ For generating calendars for week 7 to 17 (with 2 weeks on each PDF), for this y
 
     for x in $(seq 7 2 17); do kitchencalendar -names Bob,Alice,Mallory,Judy -week $x; done
 
+There is also a web server for easily generating PDF files, just follow the project web page link. 
+
 ### General info
 
 * Version: 1.0.6
